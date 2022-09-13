@@ -21,6 +21,17 @@ jobs:
         with:
           go-version: 1.18
 
+      - name: Generate sbom
+        run: |
+          wget -qO- "https://github.com/spdx/spdx-sbom-generator/releases/download/v0.0.13/spdx-sbom-generator-v0.0.13-linux-amd64.tar.gz" | \
+          tar xvz && \
+          chmod +x spdx-sbom-generator
+          pushd cli
+          ./spdx-sbom-generator --path .
+          popd
+          rm spdx-sbom-generator
+        shell: bash
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v3.1.0
         with:

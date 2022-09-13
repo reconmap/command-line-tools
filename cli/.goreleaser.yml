@@ -1,0 +1,76 @@
+project_name: rmap
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - id: "rmap"
+    main: ./cmd/rmap/main.go
+    binary: rmap
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.CommitDate}}
+      - -X main.builtBy=goreleaser
+      - -X github.com/reconmap/cli/internal/build.BuildVersion={{.Version}}
+      - -X github.com/reconmap/cli/internal/build.BuildTime={{.CommitDate}}
+      - -X github.com/reconmap/cli/internal/build.BuildCommit={{.Commit}}
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+    - -trimpath
+
+release:
+  extra_files:
+    - glob: bom-go-mod.spdx
+
+brews:
+  - name: rmap
+    homepage: 'https://github.com/reconmap/cli'
+    description: 'Rmap: Command line interface for the Reconmap pentest automation and reporting tool.'
+    folder: Formula
+    license: "GPL-3.0"
+    commit_author:
+      name: Santiago Lizardo
+      email: santiagolizardo@users.noreply.github.com
+    tap:
+      owner: reconmap
+      name: homebrew-tap
+    install: |
+      bin.install "rmap"
+
+archives:
+  - name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    format_overrides:
+    - goos: windows
+      format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

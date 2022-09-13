@@ -4,14 +4,14 @@ go 1.18
 
 require (
 	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/docker/docker v20.10.17+incompatible
+	github.com/docker/docker v20.10.18+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/fatih/color v1.13.0
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/rodaine/table v1.0.1
-	github.com/urfave/cli/v2 v2.11.2
+	github.com/urfave/cli/v2 v2.16.3
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0

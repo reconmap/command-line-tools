@@ -1,0 +1,88 @@
+run:
+  timeout: 5m
+
+issues:
+  exclude-use-default: false
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - cyclop
+    - deadcode
+    - dupl
+    - errcheck
+    - errorlint
+    - exhaustive
+    - gci
+    - goconst
+    - gocritic
+    - godot
+    - gocognit
+    - gofmt
+    - gofumpt
+    - goimports
+    - gomnd
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ifshort
+    - importas
+    - ineffassign
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    # - noctx
+    - nolintlint
+    # - prealloc
+    - predeclared
+    - revive
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+
+linters-settings:
+  cyclop:
+    max-complexity: 15
+    package-average: 0.0
+    skip-tests: false
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  gocognit:
+    min-complexity: 15
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  gocritic:
+    enabled-tags:
+      - performance
+      - diagnostic
+      - style
+      - experimental
+      - opinionated
+  godot:
+    check-all: true
+  govet:
+    check-shadowing: true
+    enable-all: true
+  misspell:
+    locale: US
+  nestif:
+    min-complexity: 4
+  nolintlint:
+    allow-unused: false
+    allow-leading-space: true
+    allow-no-explanation: []
+    require-explanation: true
+    require-specific: true

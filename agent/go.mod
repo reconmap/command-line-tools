@@ -25,3 +25,5 @@ require (
 	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
 	golang.org/x/sys v0.0.0-20220909162455-aba9fc2a8ff2 // indirect
 )
+
+replace github.com/reconmap/shared-lib => ../shared-lib

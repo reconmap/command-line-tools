@@ -47,3 +47,5 @@ require (
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 	gotest.tools/v3 v3.0.3 // indirect
 )
+
+replace github.com/reconmap/shared-lib => ../shared-lib

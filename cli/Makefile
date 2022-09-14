@@ -27,6 +27,10 @@ sbom:
 	-w /reconmap/cli \
 	spdx/spdx-sbom-generator --path /reconmap/cli
 
+.PHONY: get-deps
+get-deps:
+	go get -v -t -d ./...
+
 .PHONY: update-deps
 update-deps:
 	go get -u ./...

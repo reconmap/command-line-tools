@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"github.com/reconmap/shared-lib/pkg/logging"
 	"log"
 	"os"
 	"os/exec"
@@ -14,6 +15,8 @@ import (
 )
 
 func RunCommand(command *api.Command, vars []string) error {
+	logger := logging.GetLoggerInstance()
+
 	var err error
 	if command.ExecutableType == "custom" {
 		argsRendered := terminal.ReplaceArgs(command, vars)
@@ -51,7 +54,10 @@ func RunCommand(command *api.Command, vars []string) error {
 		outputFilename := strconv.Itoa(command.ID) + ".out"
 		f, err := os.Create(outputFilename)
 		defer f.Close()
-		f.WriteString(outStr)
+		_, err = f.WriteString(outStr)
+		if err != nil {
+			logger.Error(err)
+		}
 		command.OutputFileName = outputFilename
 
 		if len(errStr) > 0 {

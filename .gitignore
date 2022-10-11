@@ -1,2 +1,4 @@
 tags
 bom-go-mod.spdx
+*.out
+.idea

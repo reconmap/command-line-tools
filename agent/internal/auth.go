@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/reconmap/shared-lib/pkg/logging"
 	"net/http"
 	"os"
 
@@ -13,13 +14,19 @@ import (
 
 var rsakeys map[string]*rsa.PublicKey
 
+var logger = logging.GetLoggerInstance()
+
 func GetPublicKeys() string {
 	rsakeys = make(map[string]*rsa.PublicKey)
 	var body map[string]string
 	keycloakHostname, _ := os.LookupEnv("RMAP_KEYCLOAK_HOSTNAME")
 	uri := keycloakHostname + "/realms/reconmap"
 	resp, _ := http.Get(uri)
-	json.NewDecoder(resp.Body).Decode(&body)
+	err := json.NewDecoder(resp.Body).Decode(&body)
+	if err != nil {
+		logger.Error(err)
+	}
+
 	return body["public_key"]
 }
 
@@ -33,7 +40,8 @@ func CheckRequestToken(r *http.Request) error {
 		pubkey := "-----BEGIN PUBLIC KEY-----\n" + GetPublicKeys() + "\n-----END PUBLIC KEY-----"
 		key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(pubkey))
 		if err != nil {
-			fmt.Errorf("validate: parse key: %w", err)
+			err := fmt.Errorf("validate: parse key: %w", err)
+			return err
 		}
 
 		token, err := jwt.Parse(tokenParam, func(jwtToken *jwt.Token) (interface{}, error) {

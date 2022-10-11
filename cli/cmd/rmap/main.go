@@ -3,12 +3,12 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/reconmap/shared-lib/pkg/logging"
 	"os"
 
 	"github.com/fatih/color"
 	"github.com/reconmap/cli/internal/build"
 	"github.com/reconmap/cli/internal/commands"
-	"github.com/reconmap/cli/internal/logging"
 	"github.com/urfave/cli/v2"
 )
 

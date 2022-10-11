@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/reconmap/shared-lib/pkg/logging"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -24,14 +25,18 @@ type IDTokenClaim struct {
 }
 
 func Login() error {
+	logger := logging.GetLoggerInstance()
+
 	config, err := configuration.ReadConfig()
 	if err != nil {
+		logger.Error(err)
 		return err
 	}
 
 	provider, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl+"/realms/reconmap")
 	if err != nil {
-		panic(err)
+		logger.Error(err)
+		return err
 	}
 
 	oauthConfig := oauth2.Config{
@@ -42,7 +47,12 @@ func Login() error {
 	}
 
 	var stateSeed uint64
-	binary.Read(rand.Reader, binary.LittleEndian, &stateSeed)
+	err = binary.Read(rand.Reader, binary.LittleEndian, &stateSeed)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
+
 	state := fmt.Sprintf("%x", stateSeed)
 
 	authCodeURL := oauthConfig.AuthCodeURL(state)

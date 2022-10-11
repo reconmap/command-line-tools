@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -22,7 +23,7 @@ func RunCommand(command *api.Command, vars []string) error {
 		argsRendered := terminal.ReplaceArgs(command, vars)
 		log.Println("Command to run: " + command.ExecutablePath + " " + argsRendered)
 
-		cmd := exec.Command(command.ExecutablePath, strings.Fields(argsRendered)...)
+		cmd := exec.Command(command.ExecutablePath, strings.Fields(argsRendered)...) // #nosec G204
 		var stdout, stderr []byte
 		var errStdout, errStderr error
 		stdoutIn, _ := cmd.StdoutPipe()
@@ -51,9 +52,14 @@ func RunCommand(command *api.Command, vars []string) error {
 		}
 		outStr, errStr := string(stdout), string(stderr)
 
-		outputFilename := strconv.Itoa(command.ID) + ".out"
+		outputFilename := filepath.Clean(strconv.Itoa(command.ID) + ".out")
 		f, err := os.Create(outputFilename)
-		defer f.Close()
+
+		defer func() {
+			if err := f.Close(); err != nil {
+				logger.Warn("Error closing file: %s", err)
+			}
+		}()
 		_, err = f.WriteString(outStr)
 		if err != nil {
 			logger.Error(err)

@@ -96,7 +96,7 @@ func (app *App) Run() *error {
 	for _, commandSchedule := range *schedules {
 		c.AddFunc(commandSchedule.CronExpresion, func() {
 			parts := strings.Split(commandSchedule.ArgumentValues, " ")
-			cmd := exec.Command(parts[0], parts[1:]...)
+			cmd := exec.Command(parts[0], parts[1:]...) // #nosec G204
 			cmd.Env = append(os.Environ(), "PS1=# ")
 			cmd.Env = append(cmd.Env, "TERM=xterm")
 			cmd.Env = append(cmd.Env, "RMAP_SESSION_TOKEN="+token.AccessToken)

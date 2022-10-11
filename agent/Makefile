@@ -44,5 +44,6 @@ get-deps:
 
 .PHONY: update-deps
 update-deps:
+	go mod tidy
 	go get -u ./...
 

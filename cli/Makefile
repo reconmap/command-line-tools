@@ -1,3 +1,6 @@
+
+include ../Golang.mk
+
 SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 .ONESHELL:
@@ -26,14 +29,6 @@ sbom:
 	-v $(CURDIR):/reconmap/cli \
 	-w /reconmap/cli \
 	spdx/spdx-sbom-generator --path /reconmap/cli
-
-.PHONY: get-deps
-get-deps:
-	go get -v -t -d ./...
-
-.PHONY: update-deps
-update-deps:
-	go get -u ./...
 
 .PHONY: snapshot
 snapshot: sbom

@@ -33,14 +33,21 @@ func Login() error {
 		return err
 	}
 
-	provider, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl+"/realms/reconmap")
+	provider, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl)
 	if err != nil {
-		logger.Error(err)
-		return err
+		// try with default realm
+		provider, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl+"/realms/reconmap")
+		if err != nil {
+			logger.Error(err)
+			return err
+		}
 	}
-
+	client := "web-client"
+	if  config.AuthClient != "" {
+		client = config.AuthClient
+	}
 	oauthConfig := oauth2.Config{
-		ClientID:    "web-client",
+		ClientID:    client,
 		RedirectURL: "urn:ietf:wg:oauth:2.0:oob",
 		Endpoint:    provider.Endpoint(),
 		Scopes:      []string{oidc.ScopeOpenID, "email"},

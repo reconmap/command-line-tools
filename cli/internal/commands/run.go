@@ -7,7 +7,6 @@ import (
 	"io"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -59,13 +58,16 @@ func CreateNewContainer(command *api.Command, vars []string) (string, error) {
 	}
 
 	if len(containers) > 0 {
-		for _, container := range containers {
-			var timeout time.Duration = 5 * time.Second
-			fmt.Printf("Container ID: %s, %s\n", container.Image, container.ID)
-			if err = cli.ContainerStop(bgContext, container.ID, &timeout); err != nil {
+		for _, c := range containers {
+			duration := 5
+			stopOptions := container.StopOptions{
+				Timeout: &duration,
+			}
+			fmt.Printf("Container ID: %s, %s\n", c.Image, c.ID)
+			if err = cli.ContainerStop(bgContext, c.ID, stopOptions); err != nil {
 				return "", err
 			}
-			err = cli.ContainerRemove(bgContext, container.ID, types.ContainerRemoveOptions{})
+			err = cli.ContainerRemove(bgContext, c.ID, types.ContainerRemoveOptions{})
 			if err != nil {
 				return "", err
 			}

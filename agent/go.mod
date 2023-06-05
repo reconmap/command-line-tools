@@ -11,7 +11,7 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/reconmap/shared-lib v0.0.0-20220910165932-7d018d9111fc
 	github.com/robfig/cron v1.2.0
-	github.com/sirupsen/logrus v1.9.2
+	github.com/sirupsen/logrus v1.9.3
 )
 
 require (

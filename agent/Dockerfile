@@ -1,15 +1,18 @@
-FROM golang:1.17-alpine AS builder
+FROM golang:1.18-alpine AS builder
 
 WORKDIR /build
 
-COPY go.mod go.sum ./
-COPY cmd/ ./cmd/
-COPY internal/ ./internal/
+RUN mkdir -p agent/{cmd,internal}
+COPY agent/go.mod agent/go.sum ./agent
+COPY agent/cmd/ ./agent/cmd
+COPY agent/internal/ ./agent/internal
+COPY shared-lib/ ./shared-lib
 
+WORKDIR /build/agent
 ENV CGO_ENABLED=0
 RUN go build -o /build/reconmapd ./cmd/reconmapd
 
-FROM scratch
+FROM kalilinux/kali-rolling
 
 WORKDIR /app
 

@@ -1,6 +1,6 @@
 module reconmap/agent
 
-go 1.18
+go 1.21
 
 require (
 	github.com/Nerzal/gocloak/v11 v11.2.0

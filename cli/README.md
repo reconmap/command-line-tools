@@ -51,11 +51,6 @@ To execute a command once you know its arguments
 
 ## Build instructions
 
-### Requirements
-
-- Golang 1.18+
-- Make
-
 ### Compilation
 
 ```shell

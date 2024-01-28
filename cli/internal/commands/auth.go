@@ -36,7 +36,7 @@ func Login() error {
 	provider, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl)
 	if err != nil {
 		// try with default realm
-		provider, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl+"/realms/reconmap")
+		_, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl+"/realms/reconmap")
 		if err != nil {
 			logger.Error(err)
 			return err
@@ -100,11 +100,11 @@ func Login() error {
 	formData := map[string]string{}
 	jsonData, err := json.Marshal(formData)
 
-	client := &http.Client{}
+	httpClient := &http.Client{}
 	req, err := api.NewRmapRequest("POST", apiUrl, bytes.NewBuffer(jsonData))
 	req.Header.Add("Content-Type", "application/json")
 	api.AddBearerToken(req)
-	response, err := client.Do(req)
+	response, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}

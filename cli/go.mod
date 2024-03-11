@@ -22,7 +22,7 @@ require (
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/reconmap/shared-lib v0.0.0-20220910165932-7d018d9111fc
-	golang.org/x/oauth2 v0.16.0
+	golang.org/x/oauth2 v0.18.0
 )
 
 require (

@@ -6,7 +6,7 @@ toolchain go1.21.6
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/docker/docker v25.0.1+incompatible
+	github.com/docker/docker v25.0.5+incompatible
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/fatih/color v1.16.0
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect

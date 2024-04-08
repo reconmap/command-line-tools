@@ -22,7 +22,7 @@ require (
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/reconmap/shared-lib v0.0.0-20220910165932-7d018d9111fc
-	golang.org/x/oauth2 v0.16.0
+	golang.org/x/oauth2 v0.19.0
 )
 
 require (
@@ -34,7 +34,6 @@ require (
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -52,8 +51,6 @@ require (
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/tools v0.17.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gotest.tools/v3 v3.0.3 // indirect
 )

@@ -12,9 +12,9 @@ require (
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/rodaine/table v1.2.0
-	github.com/urfave/cli/v2 v2.27.1
+	github.com/urfave/cli/v2 v2.27.2
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.26.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 )
@@ -27,7 +27,7 @@ require (
 
 require (
 	github.com/containerd/log v0.1.0 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
@@ -42,7 +42,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pquerna/cachecontrol v0.2.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/xrash/smetrics v0.0.0-20231213231151-1d8dd44e695e // indirect
+	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.47.0 // indirect
 	go.opentelemetry.io/otel v1.22.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.22.0 // indirect

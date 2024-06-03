@@ -8,14 +8,14 @@ require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/docker/docker v26.1.3+incompatible
 	github.com/docker/go-connections v0.5.0 // indirect
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/rodaine/table v1.2.0
 	github.com/urfave/cli/v2 v2.27.2
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 )
 

@@ -50,7 +50,7 @@ func CreateNewContainer(command *api.Command, vars []string) (string, error) {
 	var containerName string = "reconmap-" + command.Name
 
 	f := filters.NewArgs(filters.KeyValuePair{Key: "name", Value: containerName})
-	containers, err := cli.ContainerList(bgContext, types.ContainerListOptions{
+	containers, err := cli.ContainerList(bgContext, container.ListOptions{
 		Filters: f,
 	})
 	if err != nil {
@@ -67,7 +67,7 @@ func CreateNewContainer(command *api.Command, vars []string) (string, error) {
 			if err = cli.ContainerStop(bgContext, c.ID, stopOptions); err != nil {
 				return "", err
 			}
-			err = cli.ContainerRemove(bgContext, c.ID, types.ContainerRemoveOptions{})
+			err = cli.ContainerRemove(bgContext, c.ID, container.RemoveOptions{})
 			if err != nil {
 				return "", err
 			}
@@ -103,7 +103,7 @@ func CreateNewContainer(command *api.Command, vars []string) (string, error) {
 		panic(err)
 	}
 
-	resp, err := cli.ContainerAttach(bgContext, cont.ID, types.ContainerAttachOptions{
+	resp, err := cli.ContainerAttach(bgContext, cont.ID, container.AttachOptions{
 		Stream: true,
 		Stdin:  false,
 		Stdout: true,
@@ -113,7 +113,7 @@ func CreateNewContainer(command *api.Command, vars []string) (string, error) {
 		return "", err
 	}
 
-	reader, err = cli.ContainerLogs(bgContext, cont.ID, types.ContainerLogsOptions{
+	reader, err = cli.ContainerLogs(bgContext, cont.ID, container.LogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Follow:     true,
@@ -127,7 +127,7 @@ func CreateNewContainer(command *api.Command, vars []string) (string, error) {
 
 	terminal.PrintYellowDot()
 	fmt.Printf(" Starting container.\n")
-	if err := cli.ContainerStart(bgContext, cont.ID, types.ContainerStartOptions{}); err != nil {
+	if err := cli.ContainerStart(bgContext, cont.ID, container.StartOptions{}); err != nil {
 		panic(err)
 	}
 

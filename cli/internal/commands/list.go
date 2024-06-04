@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/reconmap/cli/internal/containers"
 )
@@ -18,7 +18,7 @@ func ListContainer() error {
 	}
 
 	f := filters.NewArgs(filters.KeyValuePair{Key: "label", Value: "reconmap"})
-	containers, err := cli.ContainerList(containerContext, types.ContainerListOptions{
+	containers, err := cli.ContainerList(containerContext, container.ListOptions{
 		Filters: f,
 	})
 	if err != nil {

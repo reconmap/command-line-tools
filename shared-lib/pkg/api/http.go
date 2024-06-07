@@ -11,6 +11,10 @@ import (
 	"github.com/reconmap/shared-lib/pkg/configuration"
 )
 
+type LoginResponse struct {
+	AccessToken string `json:"access_token"`
+}
+
 func NewRmapRequestWithUserAgent(method, url string, body io.Reader, userAgent string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {

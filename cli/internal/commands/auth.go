@@ -2,16 +2,18 @@ package commands
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/reconmap/shared-lib/pkg/logging"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/reconmap/shared-lib/pkg/logging"
 
 	"github.com/coreos/go-oidc"
 	"github.com/reconmap/cli/internal/terminal"
@@ -33,17 +35,17 @@ func Login() error {
 		return err
 	}
 
-	provider, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl)
+	provider, err := oidc.NewProvider(context.Background(), config.AuthUrl)
 	if err != nil {
 		// try with default realm
-		_, err := oidc.NewProvider(oauth2.NoContext, config.AuthUrl+"/realms/reconmap")
+		_, err := oidc.NewProvider(context.Background(), config.AuthUrl+"/realms/reconmap")
 		if err != nil {
 			logger.Error(err)
 			return err
 		}
 	}
 	client := "web-client"
-	if  config.AuthClient != "" {
+	if config.AuthClient != "" {
 		client = config.AuthClient
 	}
 	oauthConfig := oauth2.Config{

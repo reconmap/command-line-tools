@@ -105,7 +105,7 @@ var CommandList []*cli.Command = []*cli.Command{
 						tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
 
 						for _, command := range *commands {
-							tbl.AddRow(command.ID, command.Name, command.Description, command.OutputParser, command.ExecutableType, command.ExecutablePath, command.ContainerArgs)
+							tbl.AddRow(command.ID, command.Name, command.Description)
 
 						}
 						tbl.Print()
@@ -124,7 +124,7 @@ var CommandList []*cli.Command = []*cli.Command{
 				},
 				Action: func(c *cli.Context) error {
 					taskId := c.Int("taskId")
-					command, err := api.GetCommandById(c.Int("commandId"))
+					command, err := api.GetCommandUsageById(c.Int("commandId"))
 					if err != nil {
 						return err
 					}
@@ -209,7 +209,7 @@ var CommandList []*cli.Command = []*cli.Command{
 						tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
 
 						for _, vuln := range *vulnerabilities {
-							tbl.AddRow(vuln.ID, vuln.Summary, vuln.Risk, vuln.Status, vuln.CategoryName)
+							tbl.AddRow(vuln.ID, vuln.Summary, vuln.Risk, vuln.Status, vuln.CategoryId)
 
 						}
 						tbl.Print()

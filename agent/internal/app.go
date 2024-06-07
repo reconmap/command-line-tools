@@ -16,8 +16,8 @@ import (
 	"github.com/Nerzal/gocloak/v11"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
-	"github.com/reconmap/shared-lib/pkg/api"
 	"github.com/reconmap/shared-lib/pkg/io"
+	"github.com/reconmap/shared-lib/pkg/models"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
 )
@@ -84,7 +84,7 @@ func (app *App) Run() *error {
 	defer response.Body.Close()
 	body, err := ioutil.ReadAll(response.Body)
 
-	var schedules *api.CommandScheduleList = &api.CommandScheduleList{}
+	var schedules *models.CommandSchedules = &models.CommandSchedules{}
 
 	if err = json.Unmarshal(body, schedules); err != nil {
 		panic(err)
@@ -94,7 +94,7 @@ func (app *App) Run() *error {
 	c := cron.New()
 
 	for _, commandSchedule := range *schedules {
-		c.AddFunc(commandSchedule.CronExpresion, func() {
+		c.AddFunc(commandSchedule.CronExpression, func() {
 			parts := strings.Split(commandSchedule.ArgumentValues, " ")
 			cmd := exec.Command(parts[0], parts[1:]...) // #nosec G204
 			cmd.Env = append(os.Environ(), "PS1=# ")
@@ -141,7 +141,7 @@ func (app *App) Run() *error {
 
 	redisErr := app.connectRedis()
 	if redisErr != nil {
-		errorFormatted := fmt.Errorf("Unable to connect to redis (%w)", *redisErr)
+		errorFormatted := fmt.Errorf("unable to connect to redis (%w)", *redisErr)
 		return &errorFormatted
 	}
 

@@ -15,14 +15,15 @@ import (
 	"github.com/reconmap/cli/internal/terminal"
 	"github.com/reconmap/shared-lib/pkg/api"
 	"github.com/reconmap/shared-lib/pkg/configuration"
+	"github.com/reconmap/shared-lib/pkg/models"
 )
 
-func UploadResults(command *api.Command, taskId int) error {
+func UploadResults(command *models.CommandUsage, taskId int) error {
 	return UploadCommandOutputUsingFileName(command, taskId)
 }
 
-func UploadCommandOutputUsingFileName(command *api.Command, taskId int) error {
-	if len(strings.TrimSpace(command.OutputFileName)) == 0 {
+func UploadCommandOutputUsingFileName(command *models.CommandUsage, taskId int) error {
+	if len(strings.TrimSpace(command.OutputFilename)) == 0 {
 		return errors.New("The command has not defined an output filename. Nothing has been uploaded to the server.")
 	}
 
@@ -33,7 +34,7 @@ func UploadCommandOutputUsingFileName(command *api.Command, taskId int) error {
 	var remoteURL string = config.ApiUrl + "/commands/outputs"
 
 	var client *http.Client = &http.Client{}
-	err = Upload(client, remoteURL, command.OutputFileName, command.ID, taskId)
+	err = Upload(client, remoteURL, command.OutputFilename, command.CommandId, taskId)
 	return err
 }
 

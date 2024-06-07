@@ -1,23 +1,20 @@
 package internal
 
 import (
-	"crypto/rsa"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/reconmap/shared-lib/pkg/logging"
 	"net/http"
 	"os"
+
+	"github.com/reconmap/shared-lib/pkg/logging"
 
 	"github.com/golang-jwt/jwt"
 )
 
-var rsakeys map[string]*rsa.PublicKey
-
 var logger = logging.GetLoggerInstance()
 
 func GetPublicKeys() string {
-	rsakeys = make(map[string]*rsa.PublicKey)
 	var body map[string]string
 	keycloakHostname, _ := os.LookupEnv("RMAP_KEYCLOAK_HOSTNAME")
 	uri := keycloakHostname + "/realms/reconmap"
@@ -56,7 +53,7 @@ func CheckRequestToken(r *http.Request) error {
 		}
 
 		if _, ok := token.Claims.(jwt.MapClaims); !ok {
-			return errors.New("Unable to parse claims")
+			return errors.New("unable to parse claims")
 		}
 	}
 

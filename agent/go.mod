@@ -8,7 +8,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/mux v1.8.1
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.2
 	github.com/reconmap/shared-lib v0.0.0-20220910165932-7d018d9111fc
 	github.com/robfig/cron v1.2.0
 	github.com/sirupsen/logrus v1.9.3

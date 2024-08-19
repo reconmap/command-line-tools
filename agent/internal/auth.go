@@ -1,12 +1,14 @@
 package internal
 
 import (
-	"encoding/json"
+	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
 
+	"github.com/Nerzal/gocloak/v11"
 	"github.com/reconmap/shared-lib/pkg/logging"
 
 	"github.com/golang-jwt/jwt"
@@ -15,16 +17,21 @@ import (
 var logger = logging.GetLoggerInstance()
 
 func GetPublicKeys() string {
-	var body map[string]string
 	keycloakHostname, _ := os.LookupEnv("RMAP_KEYCLOAK_HOSTNAME")
-	uri := keycloakHostname + "/realms/reconmap"
-	resp, _ := http.Get(uri)
-	err := json.NewDecoder(resp.Body).Decode(&body)
+	realm := "reconmap"
+
+	client := gocloak.NewClient(keycloakHostname, gocloak.SetAuthAdminRealms("admin/realms"), gocloak.SetAuthRealms("realms"))
+	restyClient := client.RestyClient()
+	restyClient.SetDebug(true)
+	restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+
+	// this goes to host:port/realms/name
+	issuerResponse, err := client.GetIssuer(context.Background(), realm)
 	if err != nil {
-		logger.Error(err)
+		logger.Error("error retrieving issue", err)
 	}
 
-	return body["public_key"]
+	return *issuerResponse.PublicKey
 }
 
 func CheckRequestToken(r *http.Request) error {

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -16,7 +16,7 @@ import (
 	"github.com/Nerzal/gocloak/v11"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
-	"github.com/reconmap/shared-lib/pkg/io"
+	reconmapio "github.com/reconmap/shared-lib/pkg/io"
 	"github.com/reconmap/shared-lib/pkg/models"
 	"github.com/robfig/cron"
 	log "github.com/sirupsen/logrus"
@@ -60,6 +60,7 @@ func (app *App) Run() *error {
 	if err != nil {
 		panic("Login failed:" + err.Error())
 	}
+
 	rptResult, err := client.RetrospectToken(ctx, token.AccessToken, clientID, clientSecret, realm)
 	if err != nil {
 		panic("Inspection failed:" + err.Error())
@@ -82,11 +83,16 @@ func (app *App) Run() *error {
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Error("cannot read response body")
+	}
 
 	var schedules *models.CommandSchedules = &models.CommandSchedules{}
 
 	if err = json.Unmarshal(body, schedules); err != nil {
+		log.Error("problem with command schedules")
 		panic(err)
 	}
 
@@ -111,11 +117,11 @@ func (app *App) Run() *error {
 			var wg sync.WaitGroup
 			wg.Add(1)
 			go func() {
-				stdout, errStdout = io.CopyAndCapture(os.Stdout, stdoutIn)
+				stdout, errStdout = reconmapio.CopyAndCapture(os.Stdout, stdoutIn)
 				wg.Done()
 			}()
 
-			stderr, errStderr = io.CopyAndCapture(os.Stderr, stderrIn)
+			stderr, errStderr = reconmapio.CopyAndCapture(os.Stderr, stderrIn)
 
 			wg.Wait()
 

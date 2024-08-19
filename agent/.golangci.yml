@@ -7,6 +7,8 @@ issues:
 linters:
   disable-all: true
   enable:
+    # - noctx
+    # - prealloc
     - bodyclose
     - cyclop
     - deadcode
@@ -15,14 +17,13 @@ linters:
     - errorlint
     - exhaustive
     - gci
+    - gocognit
     - goconst
     - gocritic
     - godot
-    - gocognit
     - gofmt
     - gofumpt
     - goimports
-    - gomnd
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -34,11 +35,10 @@ linters:
     - ineffassign
     - makezero
     - misspell
+    - mnd
     - nakedret
     - nestif
-    # - noctx
     - nolintlint
-    # - prealloc
     - predeclared
     - revive
     - staticcheck
@@ -74,7 +74,6 @@ linters-settings:
   godot:
     check-all: true
   govet:
-    check-shadowing: true
     enable-all: true
   misspell:
     locale: US

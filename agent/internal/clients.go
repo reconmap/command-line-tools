@@ -13,7 +13,9 @@ func broadcast(message string) {
 	for _, client := range clients {
 		log.Debug("-> " + client.RemoteAddr().String())
 		err := client.WriteMessage(websocket.TextMessage, []byte(message))
-		log.Error(err)
+		if err != nil {
+			log.Error("unable to write message to websocket", err)
+		}
 	}
 }
 

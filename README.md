@@ -9,4 +9,4 @@ docker build -t quay.io/reconmap/agent:latest -f agent/Dockerfile .
 ## Build requirements
 
 - Make
-- Golang 1.21+
+- Golang 1.22+

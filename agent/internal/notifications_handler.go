@@ -11,13 +11,13 @@ func handleNotifications(w http.ResponseWriter, r *http.Request) {
 
 	err := CheckRequestToken(r)
 	if err != nil {
-		log.Error(err)
+		log.Error("cannot check request token", err)
 		return
 	}
 
 	conn, err := UpgradeRequest(w, r)
 	if err != nil {
-		log.Error(err)
+		log.Error("cannot upgrade request", err)
 		return
 	}
 

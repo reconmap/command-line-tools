@@ -17,7 +17,7 @@ func broadcastNotifications(app *App) {
 		ctx := context.Background()
 		result, err := app.redisConn.BRPop(ctx, redisTimeout, "notifications:queue").Result()
 		if err != nil {
-			log.Error(err)
+			log.Debug("no items retrieved from notifications queue: ", err)
 		} else if result != nil {
 			broadcast(result[1])
 		}

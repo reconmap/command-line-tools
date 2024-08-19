@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/Nerzal/gocloak/v11 v11.2.0
-	github.com/creack/pty v1.1.21
+	github.com/creack/pty v1.1.23
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/mux v1.8.1

@@ -11,7 +11,7 @@ import (
 
 	"github.com/creack/pty"
 	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 const (
@@ -32,7 +32,7 @@ var upgrader = websocket.Upgrader{
 
 func tryWriteMessage(conn *websocket.Conn, messageType int, data []byte) {
 	if err := conn.WriteMessage(messageType, data); err != nil {
-		log.WithError(err).Error("Unable to write message")
+		logger.Error("Unable to write message", zap.Error(err))
 	}
 }
 
@@ -47,17 +47,17 @@ func tryWriteBinaryMessage(conn *websocket.Conn, data []byte) {
 func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 	err := CheckRequestToken(r)
 	if err != nil {
-		log.Error(err)
+		logger.Error(err)
 		return
 	}
 
 	conn, err := UpgradeRequest(w, r)
 	if err != nil {
-		log.Error(err)
+		logger.Error(err)
 		return
 	}
 
-	l := log.WithField("remoteaddr", r.RemoteAddr)
+	l := logger.With("remoteaddr", r.RemoteAddr)
 
 	params := r.URL.Query()
 
@@ -69,23 +69,23 @@ func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 
 	ttyFile, err := pty.Start(cmd)
 	if err != nil {
-		l.WithError(err).Error("Unable to start pty/cmd")
+		l.Error("Unable to start pty/cmd", zap.Error(err))
 		tryWriteTextMessage(conn, err.Error())
 		return
 	}
 	defer func() {
 		var err error
 		if err = cmd.Process.Kill(); err != nil {
-			l.WithError(err).Error("Couldn't kill process")
+			l.Error("Couldn't kill process", zap.Error(err))
 		}
 		if _, err = cmd.Process.Wait(); err != nil {
-			l.WithError(err).Error("Couldn't wait for process")
+			l.Error("Couldn't wait for process", zap.Error(err))
 		}
 		if err = ttyFile.Close(); err != nil {
-			l.WithError(err).Error("Couldn't close tty")
+			l.Error("Couldn't close tty", zap.Error(err))
 		}
 		if err = conn.Close(); err != nil {
-			l.WithError(err).Error("Couldn't close connection")
+			l.Error("Couldn't close connection", zap.Error(err))
 		}
 	}()
 
@@ -108,10 +108,10 @@ func sendTtyBuffer(ttyFile *os.File, conn *websocket.Conn) {
 	}
 }
 
-func receiveWsBuffer(l *log.Entry, conn *websocket.Conn, ttyFile *os.File) {
+func receiveWsBuffer(l *zap.SugaredLogger, conn *websocket.Conn, ttyFile *os.File) {
 	messageType, reader, err := conn.NextReader()
 	if err != nil {
-		l.WithError(err).Error("Unable to grab next reader")
+		l.Error("Unable to grab next reader", zap.Error(err))
 		return
 	}
 
@@ -124,13 +124,13 @@ func receiveWsBuffer(l *log.Entry, conn *websocket.Conn, ttyFile *os.File) {
 	dataTypeBuf := make([]byte, 1)
 	read, err := reader.Read(dataTypeBuf)
 	if err != nil {
-		l.WithError(err).Error("Unable to read message type from reader")
+		l.Error("Unable to read message type from reader", zap.Error(err))
 		tryWriteTextMessage(conn, "Unable to read message type from reader")
 		return
 	}
 
 	if read != 1 {
-		l.WithField("bytes", read).Error("Unexpected number of bytes read")
+		l.Error("Unexpected number of bytes read", zap.Int("bytesRead", read))
 		return
 	}
 
@@ -138,7 +138,7 @@ func receiveWsBuffer(l *log.Entry, conn *websocket.Conn, ttyFile *os.File) {
 	case 0:
 		bytesWritten, err := io.Copy(ttyFile, reader)
 		if err != nil {
-			l.WithError(err).Errorf("Error after copying %d bytes", bytesWritten)
+			l.Errorf("Error after copying %d bytes", bytesWritten)
 		}
 	case 1:
 		winSize, err := tryDecodeWindowSize(reader)
@@ -148,7 +148,7 @@ func receiveWsBuffer(l *log.Entry, conn *websocket.Conn, ttyFile *os.File) {
 		}
 		resizeTerminal(l, winSize, ttyFile)
 	default:
-		l.WithField("dataType", dataTypeBuf[0]).Error("Unknown data type")
+		l.Error("Unknown data type", zap.Uint8("dataType", dataTypeBuf[0]))
 	}
 }
 
@@ -162,8 +162,8 @@ func tryDecodeWindowSize(reader io.Reader) (windowSize, error) {
 // #nosec G103
 // getString converts byte slice to a string without memory allocation.
 // See https://groups.google.com/forum/#!msg/Golang-Nuts/ENgbUzYvCuU/90yGx7GUAgAJ
-func resizeTerminal(l *log.Entry, winSize windowSize, ttyFile *os.File) {
-	log.WithField("resizeMessage", winSize).Info("Resizing terminal")
+func resizeTerminal(l *zap.SugaredLogger, winSize windowSize, ttyFile *os.File) {
+	l.Info("Resizing terminal", zap.Uint16("rows", winSize.Rows), zap.Uint16("cols", winSize.Cols))
 	_, _, errno := syscall.Syscall(
 		syscall.SYS_IOCTL,
 		ttyFile.Fd(),
@@ -171,6 +171,6 @@ func resizeTerminal(l *log.Entry, winSize windowSize, ttyFile *os.File) {
 		uintptr(unsafe.Pointer(&winSize)),
 	)
 	if errno != 0 {
-		l.WithError(errno).Error("Unable to resize terminal")
+		l.Error("unable to resize terminal", zap.Error(errno))
 	}
 }

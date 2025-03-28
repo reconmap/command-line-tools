@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
-	github.com/docker/docker v28.0.3+incompatible
+	github.com/docker/docker v28.0.4+incompatible
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/fatih/color v1.18.0
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect

@@ -3,13 +3,46 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/reconmap/shared-lib/pkg/configuration"
 	"github.com/reconmap/shared-lib/pkg/models"
 )
+
+func GetCommandsSchedules(accessToken string) (*models.CommandSchedules, error) {
+
+	restApiUrl, _ := os.LookupEnv("RMAP_REST_API_URL")
+	client2 := &http.Client{}
+	req, err := http.NewRequest("GET", restApiUrl+"/commands/schedules", nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+
+	response, err := client2.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var schedules *models.CommandSchedules = &models.CommandSchedules{}
+
+	if err = json.Unmarshal(body, schedules); err != nil {
+		return nil, err
+	}
+
+	return schedules, nil
+}
 
 func GetCommandById(id int) (*models.Command, error) {
 	config, err := configuration.ReadConfig()

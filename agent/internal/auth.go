@@ -8,13 +8,43 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Nerzal/gocloak/v11"
-	"github.com/reconmap/shared-lib/pkg/logging"
+	"github.com/Nerzal/gocloak/v13"
+	"go.uber.org/zap"
 
 	"github.com/golang-jwt/jwt"
 )
 
-var logger = logging.GetLoggerInstance()
+func GetAccessToken(app *App) (string, error) {
+	keycloakHostname, _ := os.LookupEnv("RMAP_KEYCLOAK_HOSTNAME")
+	clientID, _ := os.LookupEnv("RMAP_AGENT_CLIENT_ID")
+	clientSecret, _ := os.LookupEnv("RMAP_AGENT_CLIENT_SECRET")
+	realm := "reconmap"
+
+	client := gocloak.NewClient(keycloakHostname, gocloak.SetAuthAdminRealms("admin/realms"), gocloak.SetAuthRealms("realms"))
+
+	restyClient := client.RestyClient()
+	restyClient.SetDebug(app.debugEnabled)
+	restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
+
+	ctx := context.Background()
+	token, err := client.LoginClient(ctx, clientID, clientSecret, realm)
+	if err != nil {
+		return "", err
+	}
+
+	tokenInfo, err := client.RetrospectToken(ctx, token.AccessToken, clientID, clientSecret, realm)
+	if err != nil {
+		app.Logger.Error("unable to inspect token", zap.Error(err))
+		panic(err)
+	}
+
+	if !*tokenInfo.Active {
+		app.Logger.Error("token is not active")
+		panic("token is not active")
+	}
+
+	return token.AccessToken, nil
+}
 
 func GetPublicKeys() string {
 	keycloakHostname, _ := os.LookupEnv("RMAP_KEYCLOAK_HOSTNAME")

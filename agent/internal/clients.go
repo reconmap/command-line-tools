@@ -2,24 +2,24 @@ package internal
 
 import (
 	"github.com/gorilla/websocket"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 var clients []*websocket.Conn
 
 func broadcast(message string) {
-	log.Debug("broadcasting message")
+	logger.Debug("broadcasting message")
 
 	for _, client := range clients {
-		log.Debug("-> " + client.RemoteAddr().String())
+		logger.Debug("-> " + client.RemoteAddr().String())
 		err := client.WriteMessage(websocket.TextMessage, []byte(message))
 		if err != nil {
-			log.Error("unable to write message to websocket", err)
+			logger.Error("unable to write message to websocket", zap.Error(err))
 		}
 	}
 }
 
 func registerClient(client *websocket.Conn) {
-	log.Debug("registering client connection")
+	logger.Debug("registering client connection")
 	clients = append(clients, client)
 }

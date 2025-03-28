@@ -2,6 +2,8 @@ module github.com/reconmap/cli
 
 go 1.23.0
 
+toolchain go1.24.1
+
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/docker/docker v28.0.4+incompatible
@@ -48,7 +50,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gotest.tools/v3 v3.0.3 // indirect
 )

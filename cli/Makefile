@@ -8,7 +8,6 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 LATEST_TAG = $(shell git describe --tags)
-GORELEASER := goreleaser
 
 PROGRAM=rmap
 
@@ -29,7 +28,3 @@ sbom:
 	-v $(CURDIR):/reconmap/cli \
 	-w /reconmap/cli \
 	spdx/spdx-sbom-generator --path /reconmap/cli
-
-.PHONY: snapshot
-snapshot: sbom
-	$(GORELEASER) --snapshot --skip-publish --rm-dist

@@ -1,3 +1,4 @@
+version: 2
 project_name: reconmapd
 
 before:
@@ -38,12 +39,12 @@ brews:
   - name: reconmapd
     homepage: "https://github.com/reconmap/agent"
     description: "Reconmapd: The Reconmap agent allows clients to launch commands remotely, open interactive browser terminals, and receive push notifications."
-    folder: Formula
+    directory: Formula
     license: "GPL-3.0"
     commit_author:
       name: Santiago Lizardo
       email: santiagolizardo@users.noreply.github.com
-    tap:
+    repository:
       owner: reconmap
       name: homebrew-tap
     install: |
@@ -51,11 +52,6 @@ brews:
 
 archives:
   - name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      386: i386
-      amd64: x86_64
 
 checksum:
   name_template: "checksums.txt"

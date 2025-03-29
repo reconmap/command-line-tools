@@ -1,3 +1,4 @@
+version: 2
 project_name: rmap
 
 before:
@@ -39,12 +40,12 @@ brews:
   - name: rmap
     homepage: 'https://github.com/reconmap/cli'
     description: 'Rmap: Command line interface for the Reconmap pentest automation and reporting tool.'
-    folder: Formula
+    directory: Formula
     license: "GPL-3.0"
     commit_author:
       name: Santiago Lizardo
       email: santiagolizardo@users.noreply.github.com
-    tap:
+    repository:
       owner: reconmap
       name: homebrew-tap
     install: |
@@ -52,12 +53,6 @@ brews:
 
 archives:
   - name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
     format_overrides:
     - goos: windows
       format: zip

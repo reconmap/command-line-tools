@@ -33,7 +33,7 @@ builds:
 
 release:
   extra_files:
-    - glob: bom-go-mod.spdx
+    - glob: sbom.spdx.json
 
 brews:
   - name: rmap

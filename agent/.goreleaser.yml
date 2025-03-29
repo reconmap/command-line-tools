@@ -30,6 +30,10 @@ builds:
     flags:
       - -trimpath
 
+release:
+  extra_files:
+    - glob: sbom.spdx.json
+
 brews:
   - name: reconmapd
     homepage: "https://github.com/reconmap/agent"

@@ -2,6 +2,8 @@ module reconmap/agent
 
 go 1.23.0
 
+toolchain go1.24.1
+
 require (
 	github.com/creack/pty v1.1.24
 	github.com/go-redis/redis/v8 v8.11.5
@@ -13,7 +15,7 @@ require (
 	go.uber.org/zap v1.27.0
 )
 
-require github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
+require github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 
 require (
 	github.com/Nerzal/gocloak/v13 v13.9.0

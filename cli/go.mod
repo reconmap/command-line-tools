@@ -1,8 +1,6 @@
 module github.com/reconmap/cli
 
-go 1.23.0
-
-toolchain go1.24.1
+go 1.24.1
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect

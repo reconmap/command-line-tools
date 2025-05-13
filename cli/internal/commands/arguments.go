@@ -119,21 +119,24 @@ var CommandList []*cli.Command = []*cli.Command{
 				Usage: "Run a command and upload its output to the server",
 				Flags: []cli.Flag{
 					&cli.IntFlag{Name: "commandId", Aliases: []string{"cid"}, Required: true},
+					&cli.IntFlag{Name: "commandUsageId", Aliases: []string{"cuid"}, Required: true},
 					&cli.IntFlag{Name: "taskId", Aliases: []string{"tid"}, Required: false},
 					&cli.StringSliceFlag{Name: "var", Required: false},
 				},
 				Action: func(c *cli.Context) error {
 					taskId := c.Int("taskId")
-					command, err := api.GetCommandUsageById(c.Int("commandId"))
+					commandUsageId := c.Int("cuid")
+					command, err := api.GetCommandById(c.Int("commandId"))
+					usage, err := api.GetCommandUsageById(commandUsageId)
 					if err != nil {
 						return err
 					}
-					err = RunCommand(command, c.StringSlice("var"))
+					err = RunCommand(command, usage, c.StringSlice("var"))
 					if err != nil {
 						return err
 					}
 
-					err = UploadResults(command, taskId)
+					err = UploadResults(command, usage, taskId)
 					return err
 				},
 			},
@@ -216,21 +219,6 @@ var CommandList []*cli.Command = []*cli.Command{
 					}
 
 					return err
-				},
-			},
-		},
-	},
-	{
-		Name:    "debug",
-		Aliases: []string{"dbg"},
-		Usage:   "Shows debugging info",
-		Subcommands: []*cli.Command{
-			{
-				Name:    "list-containers",
-				Aliases: []string{"l"},
-				Usage:   "List all Reconmap containers",
-				Action: func(c *cli.Context) error {
-					return ListContainer()
 				},
 			},
 		},

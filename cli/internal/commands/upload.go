@@ -18,12 +18,12 @@ import (
 	"github.com/reconmap/shared-lib/pkg/models"
 )
 
-func UploadResults(command *models.CommandUsage, taskId int) error {
-	return UploadCommandOutputUsingFileName(command, taskId)
+func UploadResults(command *models.Command, usage *models.CommandUsage, taskId int) error {
+	return UploadCommandOutputUsingFileName(command, usage, taskId)
 }
 
-func UploadCommandOutputUsingFileName(command *models.CommandUsage, taskId int) error {
-	if len(strings.TrimSpace(command.OutputFilename)) == 0 {
+func UploadCommandOutputUsingFileName(command *models.Command, usage *models.CommandUsage, taskId int) error {
+	if len(strings.TrimSpace(usage.OutputFilename)) == 0 {
 		return errors.New("The command has not defined an output filename. Nothing has been uploaded to the server.")
 	}
 
@@ -34,11 +34,11 @@ func UploadCommandOutputUsingFileName(command *models.CommandUsage, taskId int) 
 	var remoteURL string = config.ApiUrl + "/commands/outputs"
 
 	var client *http.Client = &http.Client{}
-	err = Upload(client, remoteURL, command.OutputFilename, command.CommandId, taskId)
+	err = Upload(client, remoteURL, usage.OutputFilename, command.ID, usage.ID, taskId)
 	return err
 }
 
-func Upload(client *http.Client, url string, outputFileName string, commandId int, taskId int) (err error) {
+func Upload(client *http.Client, url string, outputFileName string, commandId int, usageId int, taskId int) (err error) {
 
 	if _, err := os.Stat(outputFileName); os.IsNotExist(err) {
 		return fmt.Errorf("Output file '%s' could not be found", outputFileName)
@@ -57,6 +57,9 @@ func Upload(client *http.Client, url string, outputFileName string, commandId in
 	_, err = io.Copy(part, file)
 
 	if err = writer.WriteField("commandId", strconv.Itoa(commandId)); err != nil {
+		return
+	}
+	if err = writer.WriteField("commandUsageId", strconv.Itoa(usageId)); err != nil {
 		return
 	}
 	if taskId != 0 {

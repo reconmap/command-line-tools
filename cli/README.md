@@ -34,7 +34,6 @@ To search for a task
 ./rmap task search -k "check domain"
 ```
 
-
 To search for a command to run
 
 ```shell
@@ -47,20 +46,10 @@ To execute a command once you know its arguments
 ./rmap command run -cid 2 -var Host=soki.com.ar
 ```
 
-(if you are using Docker containers with your commands you require the Docker engine with [API version 1.40](https://docs.docker.com/engine/api/v1.40/))
-
 ## Build instructions
 
 ### Compilation
 
 ```shell
 make
-```
-
-## Troubleshooting
-
-### Error response from daemon: client version 1.XX is too new. Maximum supported API version is 1.40
-
-```shell
-export DOCKER_API_VERSION=1.40
 ```

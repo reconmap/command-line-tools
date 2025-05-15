@@ -27,7 +27,7 @@ jobs:
 
       - name: Generate sbom
         run: |
-          wget -qO- "https://github.com/anchore/syft/releases/latest/download/syft_1.21.0_linux_amd64.tar.gz" | \
+          wget -qO- "https://github.com/anchore/syft/releases/download/v1.21.0/syft_1.21.0_linux_amd64.tar.gz" | \
           tar --extract --gzip --file=- syft && \
           chmod +x syft
           ./syft dir:. -o spdx-json > sbom.spdx.json
@@ -64,7 +64,7 @@ jobs:
 
       - name: Generate sbom
         run: |
-          wget -qO- "https://github.com/anchore/syft/releases/latest/download/syft_1.21.0_linux_amd64.tar.gz" | \
+          wget -qO- "https://github.com/anchore/syft/releases/download/v1.21.0/syft_1.21.0_linux_amd64.tar.gz" | \
           tar --extract --gzip --file=- syft && \
           chmod +x syft
           ./syft dir:. -o spdx-json > sbom.spdx.json

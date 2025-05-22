@@ -18,11 +18,11 @@ import (
 	"github.com/reconmap/shared-lib/pkg/models"
 )
 
-func UploadResults(command *models.Command, usage *models.CommandUsage, taskId int) error {
-	return UploadCommandOutputUsingFileName(command, usage, taskId)
+func UploadResults(projectId int, usage *models.CommandUsage) error {
+	return UploadCommandOutputUsingFileName(projectId, usage)
 }
 
-func UploadCommandOutputUsingFileName(command *models.Command, usage *models.CommandUsage, taskId int) error {
+func UploadCommandOutputUsingFileName(projectId int, usage *models.CommandUsage) error {
 	if len(strings.TrimSpace(usage.OutputFilename)) == 0 {
 		return errors.New("The command has not defined an output filename. Nothing has been uploaded to the server.")
 	}
@@ -34,11 +34,11 @@ func UploadCommandOutputUsingFileName(command *models.Command, usage *models.Com
 	var remoteURL string = config.ApiUrl + "/commands/outputs"
 
 	var client *http.Client = &http.Client{}
-	err = Upload(client, remoteURL, usage.OutputFilename, command.ID, usage.ID, taskId)
+	err = Upload(client, remoteURL, usage.OutputFilename, usage.ID, projectId)
 	return err
 }
 
-func Upload(client *http.Client, url string, outputFileName string, commandId int, usageId int, taskId int) (err error) {
+func Upload(client *http.Client, url string, outputFileName string, usageId int, projectId int) (err error) {
 
 	if _, err := os.Stat(outputFileName); os.IsNotExist(err) {
 		return fmt.Errorf("Output file '%s' could not be found", outputFileName)
@@ -56,14 +56,11 @@ func Upload(client *http.Client, url string, outputFileName string, commandId in
 	part, err := writer.CreateFormFile("resultFile", filepath.Base(outputFileName))
 	_, err = io.Copy(part, file)
 
-	if err = writer.WriteField("commandId", strconv.Itoa(commandId)); err != nil {
-		return
-	}
 	if err = writer.WriteField("commandUsageId", strconv.Itoa(usageId)); err != nil {
 		return
 	}
-	if taskId != 0 {
-		if err = writer.WriteField("taskId", strconv.Itoa(taskId)); err != nil {
+	if projectId != 0 {
+		if err = writer.WriteField("projectId", strconv.Itoa(projectId)); err != nil {
 			return
 		}
 	}

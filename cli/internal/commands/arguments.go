@@ -118,25 +118,23 @@ var CommandList []*cli.Command = []*cli.Command{
 				Name:  "run",
 				Usage: "Run a command and upload its output to the server",
 				Flags: []cli.Flag{
-					&cli.IntFlag{Name: "commandId", Aliases: []string{"cid"}, Required: true},
+					&cli.IntFlag{Name: "projectId", Aliases: []string{"pid"}, Required: false},
 					&cli.IntFlag{Name: "commandUsageId", Aliases: []string{"cuid"}, Required: true},
-					&cli.IntFlag{Name: "taskId", Aliases: []string{"tid"}, Required: false},
 					&cli.StringSliceFlag{Name: "var", Required: false},
 				},
 				Action: func(c *cli.Context) error {
-					taskId := c.Int("taskId")
+					projectId := c.Int("projectId")
 					commandUsageId := c.Int("cuid")
-					command, err := api.GetCommandById(c.Int("commandId"))
 					usage, err := api.GetCommandUsageById(commandUsageId)
 					if err != nil {
 						return err
 					}
-					err = RunCommand(command, usage, c.StringSlice("var"))
+					err = RunCommand(projectId, usage, c.StringSlice("var"))
 					if err != nil {
 						return err
 					}
 
-					err = UploadResults(command, usage, taskId)
+					err = UploadResults(projectId, usage)
 					return err
 				},
 			},

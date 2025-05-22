@@ -16,7 +16,7 @@ import (
 	"github.com/reconmap/shared-lib/pkg/io"
 )
 
-func RunCommand(command *models.Command, usage *models.CommandUsage, vars []string) error {
+func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error {
 	logger := logging.GetLoggerInstance()
 
 	var err error
@@ -52,7 +52,7 @@ func RunCommand(command *models.Command, usage *models.CommandUsage, vars []stri
 	}
 	outStr, errStr := string(stdout), string(stderr)
 
-	outputFilename := filepath.Clean(strconv.Itoa(command.ID) + ".out")
+	outputFilename := filepath.Clean(strconv.Itoa(usage.ID) + ".out")
 	f, err := os.Create(outputFilename)
 
 	defer func() {

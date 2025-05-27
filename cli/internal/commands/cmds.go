@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,7 +20,8 @@ func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error 
 
 	var err error
 	argsRendered := terminal.ReplaceArgs(usage, vars)
-	log.Println("Command to run: " + usage.ExecutablePath + " " + argsRendered)
+
+	logger.Infof("running command '%s' with arguments '%s'", usage.ExecutablePath, argsRendered)
 
 	cmd := exec.Command(usage.ExecutablePath, strings.Fields(argsRendered)...) // #nosec G204
 	var stdout, stderr []byte
@@ -30,7 +30,7 @@ func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error 
 	stderrIn, _ := cmd.StderrPipe()
 	err = cmd.Start()
 	if err != nil {
-		log.Fatalf("cmd.Start() failed with '%s'\n", err)
+		logger.Fatalf("command execution failed with '%s'", err)
 	}
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -45,10 +45,10 @@ func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error 
 
 	err = cmd.Wait()
 	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
+		logger.Fatalf("error waiting for command to finish: %s", err)
 	}
 	if errStdout != nil || errStderr != nil {
-		log.Fatal("failed to capture stdout or stderr\n")
+		logger.Fatal("failed to capture stdout or stderr")
 	}
 	outStr, errStr := string(stdout), string(stderr)
 
@@ -64,10 +64,14 @@ func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error 
 	if err != nil {
 		logger.Error(err)
 	}
-	usage.OutputFilename = outputFilename
+
+	if usage.OutputFilename == "{{{STDOUT}}}" {
+		usage.OutputFilename = outputFilename
+	}
+	logger.Infof("command output written to '%s'", usage.OutputFilename)
 
 	if len(errStr) > 0 {
-		log.Println(errStr)
+		logger.Error(errStr)
 	}
 
 	return err

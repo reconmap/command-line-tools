@@ -125,6 +125,7 @@ var CommandList []*cli.Command = []*cli.Command{
 				Action: func(c *cli.Context) error {
 					projectId := c.Int("projectId")
 					commandUsageId := c.Int("cuid")
+
 					usage, err := api.GetCommandUsageById(commandUsageId)
 					if err != nil {
 						return err

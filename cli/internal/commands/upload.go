@@ -19,10 +19,6 @@ import (
 )
 
 func UploadResults(projectId int, usage *models.CommandUsage) error {
-	return UploadCommandOutputUsingFileName(projectId, usage)
-}
-
-func UploadCommandOutputUsingFileName(projectId int, usage *models.CommandUsage) error {
 	if len(strings.TrimSpace(usage.OutputFilename)) == 0 {
 		return errors.New("The command has not defined an output filename. Nothing has been uploaded to the server.")
 	}
@@ -60,9 +56,12 @@ func Upload(client *http.Client, url string, outputFileName string, usageId int,
 		return
 	}
 	if projectId != 0 {
+		fmt.Println("Project ID is set, uploading to project", projectId)
 		if err = writer.WriteField("projectId", strconv.Itoa(projectId)); err != nil {
 			return
 		}
+	} else {
+		fmt.Println("Project ID is not set,")
 	}
 
 	if err = writer.Close(); err != nil {
@@ -85,6 +84,8 @@ func Upload(client *http.Client, url string, outputFileName string, usageId int,
 	fmt.Printf(" Uploading command output '%s' to the server.\n", outputFileName)
 	res, err := client.Do(req)
 	if err != nil {
+		terminal.PrintRedCross()
+		fmt.Printf(" Error uploading command output: %s\n", err)
 		return
 	}
 

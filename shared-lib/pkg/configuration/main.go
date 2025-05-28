@@ -9,9 +9,9 @@ import (
 )
 
 type Config struct {
-	AuthUrl 		string `json:"auth-url"`
-	AuthClient 	string `json:"auth-client"`
-	ApiUrl  		string `json:"api-url"`
+	AuthUrl    string `json:"auth-url"`
+	AuthClient string `json:"auth-client"`
+	ApiUrl     string `json:"api-url"`
 }
 
 const configFileName = "config.json"
@@ -30,7 +30,7 @@ func SaveConfig(config Config) (string, error) {
 	var reconmapConfigDir, err = GetReconmapConfigDirectory()
 
 	if _, err := os.Stat(reconmapConfigDir); os.IsNotExist(err) {
-		if err := os.MkdirAll(reconmapConfigDir, os.ModePerm); err != nil {
+		if err := os.MkdirAll(reconmapConfigDir, 0750); err != nil {
 			return "", err
 		}
 	}
@@ -38,7 +38,7 @@ func SaveConfig(config Config) (string, error) {
 	jsondata, _ := json.MarshalIndent(config, "", " ")
 
 	filepath := filepath.Join(reconmapConfigDir, configFileName)
-	err = ioutil.WriteFile(filepath, jsondata, 0400)
+	err = os.WriteFile(filepath, jsondata, 0400)
 
 	return filepath, err
 }

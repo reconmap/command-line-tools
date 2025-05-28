@@ -21,26 +21,30 @@ import (
 // App contains properties needed for agent
 // to connect to redis and http router.
 type App struct {
-	redisConn    *redis.Client
-	muxRouter    *mux.Router
-	Logger       *zap.SugaredLogger
-	debugEnabled bool
+	redisConn *redis.Client
+	muxRouter *mux.Router
+	Logger    *zap.SugaredLogger
+
+	debugEnabled  bool
+	skipTlsVerify bool
 }
 
 var logger = logging.GetLoggerInstance()
 
 // NewApp returns a App struct that has intialized a redis client and http router.
 func NewApp() App {
-	debugValue, _ := os.LookupEnv("RMAP_DEBUG_ENABLED")
+	debugValue, _ := os.LookupEnv("RMAP_KEYCLOAK_DEBUG")
+	skipTlsVerify, _ := os.LookupEnv("RMAP_KEYCLOAK_SKIP_TLS_VERIFY")
 
 	muxRouter := mux.NewRouter()
 	muxRouter.HandleFunc("/term", handleWebsocket)
 	muxRouter.HandleFunc("/notifications", handleNotifications)
 
 	return App{
-		muxRouter:    muxRouter,
-		Logger:       logging.GetLoggerInstance(),
-		debugEnabled: debugValue == "true",
+		muxRouter:     muxRouter,
+		Logger:        logging.GetLoggerInstance(),
+		debugEnabled:  debugValue == "true",
+		skipTlsVerify: skipTlsVerify == "true",
 	}
 }
 

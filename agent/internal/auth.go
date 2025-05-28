@@ -16,14 +16,16 @@ import (
 
 const realm = "reconmap"
 
-func NewGocloakClient(app *App) *gocloak.GoCloak {
+func NewGocloakClient() *gocloak.GoCloak {
 	keycloakHostname, _ := os.LookupEnv("RMAP_KEYCLOAK_HOSTNAME")
+	keycloakDebug, _ := os.LookupEnv("RMAP_KEYCLOAK_DEBUG")
+	keycloakSkipVerify, _ := os.LookupEnv("RMAP_KEYCLOAK_SKIP_TLS_VERIFY")
 
 	client := gocloak.NewClient(keycloakHostname, gocloak.SetAuthAdminRealms("admin/realms"), gocloak.SetAuthRealms("realms"))
 
 	restyClient := client.RestyClient()
-	restyClient.SetDebug(app.debugEnabled)
-	restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: app.skipTlsVerify})
+	restyClient.SetDebug(keycloakDebug == "true")
+	restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: keycloakSkipVerify == "true"})
 
 	return client
 }
@@ -32,7 +34,7 @@ func GetAccessToken(app *App) (string, error) {
 	clientID, _ := os.LookupEnv("RMAP_AGENT_CLIENT_ID")
 	clientSecret, _ := os.LookupEnv("RMAP_AGENT_CLIENT_SECRET")
 
-	client := NewGocloakClient(app)
+	client := NewGocloakClient()
 
 	ctx := context.Background()
 	token, err := client.LoginClient(ctx, clientID, clientSecret, realm)
@@ -55,7 +57,7 @@ func GetAccessToken(app *App) (string, error) {
 }
 
 func GetPublicKeys() string {
-	client := NewGocloakClient(*app)
+	client := NewGocloakClient()
 
 	// this goes to host:port/realms/name
 	issuerResponse, err := client.GetIssuer(context.Background(), realm)

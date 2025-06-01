@@ -90,6 +90,9 @@ jobs:
     steps:
       - name: Push docker image
         run: |
-          echo ${{ secrets.CR_PAT }} | docker login -u "${{ secrets.CR_USERNAME }}" --password-stdin
+          echo $CR_PAT | docker login -u $CR_USERNAME --password-stdin
           docker build -t reconmap/reconmapd:latest -f agent/Dockerfile .
           docker push reconmap/reconmapd:latest
+        env:
+          CR_USERNAME: ${{ secrets.CR_USERNAME }}
+          CR_PAT: ${{ secrets.CR_PAT }}

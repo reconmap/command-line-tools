@@ -79,3 +79,17 @@ jobs:
           args: release --config .goreleaser.yml --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GO_RELEASER_GITHUB_TOKEN }}
+
+  push-reconmapd:
+    name: Build and release reconmapd
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Push docker image
+        run: |
+          echo ${{ secrets.CR_PAT }} | docker login -u "${{ secrets.CR_USERNAME }}" --password-stdin
+          docker build -t reconmap/reconmapd:latest -f agent/Dockerfile .
+          docker push reconmap/reconmapd:latest

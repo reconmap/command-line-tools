@@ -5,7 +5,8 @@ This monorepo contains the Reconmap [CLI](cli) and [agent](agent) command line t
 Look at each subdirectory to learn more about each tool including building and running instructions.
 
 ```shell
-docker build -t quay.io/reconmap/agent:latest -f agent/Dockerfile .
+docker build -t ghcr.io/reconmap/agent:latest -f agent/Dockerfile .
+docker push ghcr.io/reconmap/agent:latest
 ```
 
 ## Build requirements

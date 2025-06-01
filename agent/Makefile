@@ -9,7 +9,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 LATEST_TAG = $(shell git describe --tags)
 
-CONTAINER_NAME=quay.io/reconmap/agent:latest
+CONTAINER_NAME=ghcr.io/reconmap/agent:latest
 
 PROGRAM=reconmapd
 

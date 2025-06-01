@@ -9,6 +9,8 @@ $(SUBDIRS):
 
 .PHONY: all $(SUBDIRS)
 
+.PHONY: programs clean
+
 programs:
 	pushd agent && make reconmapd && popd
 	pushd cli && make rmap && popd

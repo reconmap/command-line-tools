@@ -65,7 +65,7 @@ func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error 
 		logger.Error(err)
 	}
 
-	if usage.OutputFilename == "{{{STDOUT}}}" {
+	if usage.OutputFilename == "STDOUT" {
 		usage.OutputFilename = outputFilename
 	}
 	logger.Infof("command output written to '%s'", usage.OutputFilename)

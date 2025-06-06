@@ -27,7 +27,7 @@ func UploadResults(projectId int, usage *models.CommandUsage) error {
 	if err != nil {
 		return err
 	}
-	var remoteURL string = config.ApiUrl + "/commands/outputs"
+	var remoteURL string = config.ReconmapApiConfig.BaseUri + "/commands/outputs"
 
 	var client *http.Client = &http.Client{}
 	err = Upload(client, remoteURL, usage.OutputFilename, usage.ID, projectId)

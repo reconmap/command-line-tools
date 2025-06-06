@@ -2,7 +2,6 @@ package api
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -52,7 +51,7 @@ func ReadSessionToken() (string, error) {
 
 	var configPath = filepath.Join(reconmapConfigDir, "session-token")
 
-	b, err := ioutil.ReadFile(filepath.Clean(configPath))
+	b, err := os.ReadFile(filepath.Clean(configPath))
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +66,7 @@ func SaveSessionToken(accessToken string) error {
 
 	var configPath = filepath.Join(reconmapConfigDir, "session-token")
 
-	err = ioutil.WriteFile(configPath, []byte(accessToken), 0600)
+	err = os.WriteFile(configPath, []byte(accessToken), 0600)
 	return err
 }
 

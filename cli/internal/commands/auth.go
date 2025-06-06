@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -31,25 +31,20 @@ func Login() error {
 
 	config, err := configuration.ReadConfig()
 	if err != nil {
-		logger.Error(err)
 		return err
 	}
 
-	provider, err := oidc.NewProvider(context.Background(), config.AuthUrl)
+	provider, err := oidc.NewProvider(context.Background(), config.KeycloakConfig.BaseUri)
 	if err != nil {
-		// try with default realm
-		_, err := oidc.NewProvider(context.Background(), config.AuthUrl+"/realms/reconmap")
-		if err != nil {
-			logger.Error(err)
-			return err
-		}
+		return err
 	}
-	client := "web-client"
-	if config.AuthClient != "" {
-		client = config.AuthClient
+
+	clientId := "web-client"
+	if config.KeycloakConfig.ClientID != "" {
+		clientId = config.KeycloakConfig.ClientID
 	}
 	oauthConfig := oauth2.Config{
-		ClientID:    client,
+		ClientID:    clientId,
 		RedirectURL: "urn:ietf:wg:oauth:2.0:oob",
 		Endpoint:    provider.Endpoint(),
 		Scopes:      []string{oidc.ScopeOpenID, "email"},
@@ -97,7 +92,7 @@ func Login() error {
 		panic(err)
 	}
 
-	var apiUrl string = config.ApiUrl + "/users/login"
+	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/users/login"
 
 	formData := map[string]string{}
 	jsonData, err := json.Marshal(formData)
@@ -125,7 +120,7 @@ func Login() error {
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 
 	if err != nil {
 		return errors.New("Unable to read response from server")
@@ -154,7 +149,7 @@ func Logout() error {
 	if err != nil {
 		return err
 	}
-	var apiUrl string = config.ApiUrl + "/users/logout"
+	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/users/logout"
 
 	client := &http.Client{}
 	req, err := api.NewRmapRequest("POST", apiUrl, nil)

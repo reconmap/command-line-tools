@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -49,7 +48,7 @@ func GetCommandById(id int) (*models.Command, error) {
 	if err != nil {
 		return nil, err
 	}
-	var apiUrl string = config.ApiUrl + "/commands/" + strconv.Itoa(id)
+	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/commands/" + strconv.Itoa(id)
 
 	client := &http.Client{}
 	req, err := NewRmapRequest("GET", apiUrl, nil)
@@ -67,7 +66,7 @@ func GetCommandById(id int) (*models.Command, error) {
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 
 	if response.StatusCode != http.StatusOK {
 		return nil, errors.New("error from server: " + string(response.Status))
@@ -90,7 +89,7 @@ func GetCommandUsageById(id int) (*models.CommandUsage, error) {
 	if err != nil {
 		return nil, err
 	}
-	var apiUrl string = config.ApiUrl + "/commands/usage/" + strconv.Itoa(id)
+	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/commands/usage/" + strconv.Itoa(id)
 
 	client := &http.Client{}
 	req, err := NewRmapRequest("GET", apiUrl, nil)
@@ -108,7 +107,7 @@ func GetCommandUsageById(id int) (*models.CommandUsage, error) {
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 
 	if response.StatusCode != http.StatusOK {
 		return nil, errors.New("error from server: " + string(response.Status))
@@ -132,7 +131,7 @@ func GetCommandsByKeywords(keywords string) (*models.Commands, error) {
 	if err != nil {
 		return nil, err
 	}
-	var apiUrl string = config.ApiUrl + "/commands?keywords=" + keywords
+	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/commands?keywords=" + keywords
 
 	client := &http.Client{}
 	req, err := NewRmapRequest("GET", apiUrl, nil)
@@ -150,7 +149,7 @@ func GetCommandsByKeywords(keywords string) (*models.Commands, error) {
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 
 	if response.StatusCode != http.StatusOK {
 		return nil, errors.New("error from server: " + string(response.Status))
@@ -167,88 +166,4 @@ func GetCommandsByKeywords(keywords string) (*models.Commands, error) {
 	}
 
 	return commands, nil
-}
-
-func GetTasksByKeywords(keywords string) (*models.Tasks, error) {
-	config, err := configuration.ReadConfig()
-	if err != nil {
-		return nil, err
-	}
-	var apiUrl string = config.ApiUrl + "/tasks?keywords=" + keywords
-
-	client := &http.Client{}
-	req, err := NewRmapRequest("GET", apiUrl, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	if err = AddBearerToken(req); err != nil {
-		return nil, err
-	}
-
-	response, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
-
-	if response.StatusCode != http.StatusOK {
-		return nil, errors.New("error from server: " + string(response.Status))
-	}
-
-	if err != nil {
-		return nil, errors.New("unable to read response from server")
-	}
-
-	var tasks *models.Tasks = &models.Tasks{}
-
-	if err = json.Unmarshal(body, tasks); err != nil {
-		return tasks, err
-	}
-
-	return tasks, nil
-}
-
-func GetVulnerabilities() (*models.Vulnerabilities, error) {
-	config, err := configuration.ReadConfig()
-	if err != nil {
-		return nil, err
-	}
-	var apiUrl string = config.ApiUrl + "/vulnerabilities"
-
-	client := &http.Client{}
-	req, err := NewRmapRequest("GET", apiUrl, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	if err = AddBearerToken(req); err != nil {
-		return nil, err
-	}
-
-	response, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
-
-	if response.StatusCode != http.StatusOK {
-		return nil, errors.New("error from server: " + string(response.Status))
-	}
-
-	if err != nil {
-		return nil, errors.New("unable to read response from server")
-	}
-
-	var vulnerabilities *models.Vulnerabilities = &models.Vulnerabilities{}
-
-	if err = json.Unmarshal(body, vulnerabilities); err != nil {
-		return vulnerabilities, err
-	}
-
-	return vulnerabilities, nil
 }

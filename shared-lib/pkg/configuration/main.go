@@ -8,34 +8,6 @@ import (
 	"path/filepath"
 )
 
-type KeycloakConfig struct {
-	BaseUri  string `json:"baseUri"`
-	ClientID string `json:"clientId"`
-}
-
-type ReconmapApiConfig struct {
-	BaseUri string `json:"baseUri"`
-}
-
-type Config struct {
-	KeycloakConfig    `json:"keycloak"`
-	ReconmapApiConfig `json:"reconmapApi"`
-}
-
-const configFileName = "config.json"
-
-func NewConfig() Config {
-	return Config{
-		KeycloakConfig: KeycloakConfig{
-			BaseUri:  "http://localhost:8080/realms/reconmap",
-			ClientID: "web-client",
-		},
-		ReconmapApiConfig: ReconmapApiConfig{
-			BaseUri: "http://localhost:5510",
-		},
-	}
-}
-
 func GetReconmapConfigDirectory() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -46,7 +18,7 @@ func GetReconmapConfigDirectory() (string, error) {
 
 }
 
-func SaveConfig(config Config) (string, error) {
+func SaveConfig[T any](config T, fileName string) (string, error) {
 	var reconmapConfigDir, err = GetReconmapConfigDirectory()
 
 	if _, err := os.Stat(reconmapConfigDir); os.IsNotExist(err) {
@@ -57,18 +29,18 @@ func SaveConfig(config Config) (string, error) {
 
 	jsondata, _ := json.MarshalIndent(config, "", " ")
 
-	filepath := filepath.Join(reconmapConfigDir, configFileName)
+	filepath := filepath.Join(reconmapConfigDir, fileName)
 	err = os.WriteFile(filepath, jsondata, 0400)
 
 	return filepath, err
 }
 
-func ReadConfig() (*Config, error) {
+func ReadConfig[T any](fileName string) (*T, error) {
 	var reconmapConfigDir, err = GetReconmapConfigDirectory()
 	if err != nil {
 		return nil, err
 	}
-	path := filepath.Join(reconmapConfigDir, configFileName)
+	path := filepath.Join(reconmapConfigDir, fileName)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, err
@@ -87,18 +59,18 @@ func ReadConfig() (*Config, error) {
 
 	bytes, _ := io.ReadAll(jsonFile)
 
-	config := Config{}
-	err = json.Unmarshal(bytes, &config)
+	config := new(T)
+	err = json.Unmarshal(bytes, config)
 
-	return &config, nil
+	return config, nil
 }
 
-func HasConfig() bool {
+func HasConfig(fileName string) bool {
 	var reconmapConfigDir, err = GetReconmapConfigDirectory()
 	if err != nil {
 		return false
 	}
-	path := filepath.Join(reconmapConfigDir, configFileName)
+	path := filepath.Join(reconmapConfigDir, fileName)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false

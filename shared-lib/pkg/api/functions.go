@@ -5,18 +5,16 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"os"
 	"strconv"
 
-	"github.com/reconmap/shared-lib/pkg/configuration"
 	"github.com/reconmap/shared-lib/pkg/models"
 )
 
-func GetCommandsSchedules(accessToken string) (*models.CommandSchedules, error) {
+func GetCommandsSchedules(apiBaseUri string, accessToken string) (*models.CommandSchedules, error) {
+	var apiUrl string = apiBaseUri + "/commands/schedules"
 
-	restApiUrl, _ := os.LookupEnv("RMAP_REST_API_URL")
 	client2 := &http.Client{}
-	req, err := http.NewRequest("GET", restApiUrl+"/commands/schedules", nil)
+	req, err := http.NewRequest("GET", apiUrl, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,53 +41,8 @@ func GetCommandsSchedules(accessToken string) (*models.CommandSchedules, error) 
 	return schedules, nil
 }
 
-func GetCommandById(id int) (*models.Command, error) {
-	config, err := configuration.ReadConfig()
-	if err != nil {
-		return nil, err
-	}
-	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/commands/" + strconv.Itoa(id)
-
-	client := &http.Client{}
-	req, err := NewRmapRequest("GET", apiUrl, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	if err = AddBearerToken(req); err != nil {
-		return nil, err
-	}
-
-	response, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-
-	if response.StatusCode != http.StatusOK {
-		return nil, errors.New("error from server: " + string(response.Status))
-	}
-
-	if err != nil {
-		return nil, errors.New("unable to read response from server")
-	}
-
-	var command *models.Command = &models.Command{}
-
-	if err = json.Unmarshal([]byte(body), command); err != nil {
-		return command, err
-	}
-
-	return command, nil
-}
-func GetCommandUsageById(id int) (*models.CommandUsage, error) {
-	config, err := configuration.ReadConfig()
-	if err != nil {
-		return nil, err
-	}
-	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/commands/usage/" + strconv.Itoa(id)
+func GetCommandUsageById(apiBaseUri string, id int) (*models.CommandUsage, error) {
+	var apiUrl string = apiBaseUri + "/commands/usage/" + strconv.Itoa(id)
 
 	client := &http.Client{}
 	req, err := NewRmapRequest("GET", apiUrl, nil)
@@ -126,12 +79,8 @@ func GetCommandUsageById(id int) (*models.CommandUsage, error) {
 	return command, nil
 }
 
-func GetCommandsByKeywords(keywords string) (*models.Commands, error) {
-	config, err := configuration.ReadConfig()
-	if err != nil {
-		return nil, err
-	}
-	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/commands?keywords=" + keywords
+func GetCommandsByKeywords(apiBaseUri string, keywords string) (*models.Commands, error) {
+	var apiUrl string = apiBaseUri + "/commands?keywords=" + keywords
 
 	client := &http.Client{}
 	req, err := NewRmapRequest("GET", apiUrl, nil)

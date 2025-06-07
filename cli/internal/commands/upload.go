@@ -12,9 +12,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/reconmap/cli/internal/configuration"
 	"github.com/reconmap/cli/internal/terminal"
 	"github.com/reconmap/shared-lib/pkg/api"
-	"github.com/reconmap/shared-lib/pkg/configuration"
+	sharedconfig "github.com/reconmap/shared-lib/pkg/configuration"
 	"github.com/reconmap/shared-lib/pkg/models"
 )
 
@@ -23,7 +24,7 @@ func UploadResults(projectId int, usage *models.CommandUsage) error {
 		return errors.New("The command has not defined an output filename. Nothing has been uploaded to the server.")
 	}
 
-	config, err := configuration.ReadConfig()
+	config, err := sharedconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
 	if err != nil {
 		return err
 	}

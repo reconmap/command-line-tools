@@ -6,13 +6,15 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"reconmap/agent/internal/configuration"
 	"strings"
 	"sync"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
 	"github.com/reconmap/shared-lib/pkg/api"
-	reconmapio "github.com/reconmap/shared-lib/pkg/io"
+	sharedconfig "github.com/reconmap/shared-lib/pkg/configuration"
+	sharedio "github.com/reconmap/shared-lib/pkg/io"
 	"github.com/reconmap/shared-lib/pkg/logging"
 	"github.com/robfig/cron"
 	"go.uber.org/zap"
@@ -50,7 +52,10 @@ func (app *App) Run() *error {
 		panic(err)
 	}
 
-	schedules, err := api.GetCommandsSchedules(accessToken)
+	config, err := sharedconfig.ReadConfig[configuration.Config]("config-reconmapd.json")
+
+	restApiUrl := config.ReconmapApiConfig.BaseUri
+	schedules, err := api.GetCommandsSchedules(restApiUrl, accessToken)
 	if err != nil {
 		app.Logger.Error("unable to get command schedules", zap.Error(err))
 	}
@@ -76,11 +81,11 @@ func (app *App) Run() *error {
 			var wg sync.WaitGroup
 			wg.Add(1)
 			go func() {
-				stdout, errStdout = reconmapio.CopyAndCapture(os.Stdout, stdoutIn)
+				stdout, errStdout = sharedio.CopyAndCapture(os.Stdout, stdoutIn)
 				wg.Done()
 			}()
 
-			stderr, errStderr = reconmapio.CopyAndCapture(os.Stderr, stderrIn)
+			stderr, errStderr = sharedio.CopyAndCapture(os.Stderr, stderrIn)
 
 			wg.Wait()
 

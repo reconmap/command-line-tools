@@ -1,21 +1,28 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/reconmap/cli/internal/configuration"
 	"github.com/reconmap/shared-lib/pkg/api"
-	"github.com/reconmap/shared-lib/pkg/configuration"
+	shareconfig "github.com/reconmap/shared-lib/pkg/configuration"
 	"github.com/rodaine/table"
 	"github.com/urfave/cli/v2"
 )
 
 func preActionChecks(c *cli.Context) error {
-	if !configuration.HasConfig() {
+	if !shareconfig.HasConfig(configuration.ConfigFileName) {
 		return errors.New("Rmap has not been configured. Please call the 'rmap config' command first.")
 	}
+	config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
+	if err != nil {
+		return fmt.Errorf("error reading configuration: %w", err)
+	}
+	c.Context = context.WithValue(c.Context, "config", config)
 	return nil
 }
 
@@ -47,7 +54,7 @@ var CommandList []*cli.Command = []*cli.Command{
 		Action: func(c *cli.Context) error {
 
 			config := configuration.NewConfig()
-			configurationFilePath, err := configuration.SaveConfig(config)
+			configurationFilePath, err := shareconfig.SaveConfig(config, configuration.ConfigFileName)
 			if err != nil {
 				return fmt.Errorf("error saving configuration: %w", err)
 			}
@@ -70,7 +77,8 @@ var CommandList []*cli.Command = []*cli.Command{
 						return errors.New("no keywords were entered after the search command")
 					}
 					var keywords string = strings.Join(c.Args().Slice(), " ")
-					commands, err := api.GetCommandsByKeywords(keywords)
+					config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
+					commands, err := api.GetCommandsByKeywords(config.ReconmapApiConfig.BaseUri, keywords)
 					if err != nil {
 						return err
 					}
@@ -109,7 +117,8 @@ var CommandList []*cli.Command = []*cli.Command{
 					projectId := c.Int("projectId")
 					commandUsageId := c.Int("cuid")
 
-					usage, err := api.GetCommandUsageById(commandUsageId)
+					config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
+					usage, err := api.GetCommandUsageById(config.ReconmapApiConfig.BaseUri, commandUsageId)
 					if err != nil {
 						return fmt.Errorf("unable to retrieve command usage with id=%d (%w)", commandUsageId, err)
 					}

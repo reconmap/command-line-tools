@@ -16,9 +16,10 @@ import (
 	"github.com/reconmap/shared-lib/pkg/logging"
 
 	"github.com/coreos/go-oidc"
+	"github.com/reconmap/cli/internal/configuration"
 	"github.com/reconmap/cli/internal/terminal"
 	"github.com/reconmap/shared-lib/pkg/api"
-	"github.com/reconmap/shared-lib/pkg/configuration"
+	sharedconfig "github.com/reconmap/shared-lib/pkg/configuration"
 	"golang.org/x/oauth2"
 )
 
@@ -29,7 +30,7 @@ type IDTokenClaim struct {
 func Login() error {
 	logger := logging.GetLoggerInstance()
 
-	config, err := configuration.ReadConfig()
+	config, err := sharedconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
 	if err != nil {
 		return err
 	}
@@ -145,7 +146,7 @@ func Logout() error {
 		return errors.New("There is no active user session")
 	}
 
-	config, err := configuration.ReadConfig()
+	config, err := sharedconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
 	if err != nil {
 		return err
 	}

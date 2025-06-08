@@ -20,7 +20,7 @@ func NewConfig() Config {
 	return Config{
 		KeycloakConfig: KeycloakConfig{
 			BaseUri:  "http://localhost:8080/realms/reconmap",
-			ClientID: "web-client",
+			ClientID: "rmap-client",
 		},
 		ReconmapApiConfig: ReconmapApiConfig{
 			BaseUri: "http://localhost:5510",

@@ -3,8 +3,6 @@ package commands
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
-	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -44,31 +42,25 @@ func Login() error {
 	oauthConfig := oauth2.Config{
 		ClientID:    clientId,
 		RedirectURL: "urn:ietf:wg:oauth:2.0:oob",
-		Endpoint:    provider.Endpoint(),
-		Scopes:      []string{oidc.ScopeOpenID, "email"},
+		Endpoint: oauth2.Endpoint{
+			DeviceAuthURL: provider.Endpoint().AuthURL + "/device",
+			AuthURL:       provider.Endpoint().AuthURL,
+			TokenURL:      provider.Endpoint().TokenURL,
+		},
+		Scopes: []string{oidc.ScopeOpenID, "email"},
 	}
 
-	var stateSeed uint64
-	err = binary.Read(rand.Reader, binary.LittleEndian, &stateSeed)
+	ctx := context.Background()
+
+	deviceCode, err := oauthConfig.DeviceAuth(ctx)
 	if err != nil {
 		logger.Error(err)
 		return err
 	}
-
-	state := fmt.Sprintf("%x", stateSeed)
-
-	authCodeURL := oauthConfig.AuthCodeURL(state)
-	fmt.Printf("Open %s\n", authCodeURL)
+	fmt.Printf("Go to %v and enter code %v\n", deviceCode.VerificationURI, deviceCode.UserCode)
 	fmt.Println()
 
-	fmt.Printf("Enter authorization code: ")
-	var code string
-	if _, err := fmt.Scanln(&code); err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	token, err := oauthConfig.Exchange(ctx, code)
+	token, err := oauthConfig.DeviceAccessToken(ctx, deviceCode)
 	if err != nil {
 		panic(err)
 	}

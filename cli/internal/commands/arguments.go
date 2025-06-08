@@ -11,19 +11,92 @@ import (
 	"github.com/reconmap/shared-lib/pkg/api"
 	shareconfig "github.com/reconmap/shared-lib/pkg/configuration"
 	"github.com/rodaine/table"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
-func preActionChecks(c *cli.Context) error {
+func preActionChecks(ctx context.Context, c *cli.Command) (context.Context, error) {
 	if !shareconfig.HasConfig(configuration.ConfigFileName) {
-		return errors.New("Rmap has not been configured. Please call the 'rmap config' command first.")
+		return nil, errors.New("Rmap has not been configured. Please call the 'rmap config' command first.")
 	}
 	config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
 	if err != nil {
-		return fmt.Errorf("error reading configuration: %w", err)
+		return nil, fmt.Errorf("error reading configuration: %w", err)
 	}
-	c.Context = context.WithValue(c.Context, "config", config)
+	ctx = context.WithValue(ctx, "config", config)
+	return nil, nil
+}
+
+func LoginAction(ctx context.Context, c *cli.Command) error {
+	err := Login()
+	return err
+}
+
+func LogoutAction(ctx context.Context, c *cli.Command) error {
+	err := Logout()
+	return err
+}
+
+func ConfigAction(ctx context.Context, c *cli.Command) error {
+
+	config := configuration.NewConfig()
+	configurationFilePath, err := shareconfig.SaveConfig(config, configuration.ConfigFileName)
+	if err != nil {
+		return fmt.Errorf("error saving configuration: %w", err)
+	}
+	fmt.Printf("Configuration successfully saved to: %s\n", configurationFilePath)
+	fmt.Println("You can now use the 'rmap login' command to authenticate with the server.")
 	return nil
+}
+
+func SearchCommandsAction(ctx context.Context, c *cli.Command) error {
+	if c.Args().Len() == 0 {
+		return errors.New("no keywords were entered after the search command")
+	}
+	var keywords string = strings.Join(c.Args().Slice(), " ")
+	config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
+	commands, err := api.GetCommandsByKeywords(config.ReconmapApiConfig.BaseUri, keywords)
+	if err != nil {
+		return err
+	}
+
+	var numCommands int = len(*commands)
+	fmt.Printf("%d commands matching '%s'\n", numCommands, keywords)
+
+	if numCommands > 0 {
+		fmt.Println()
+
+		headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
+		columnFmt := color.New(color.FgYellow).SprintfFunc()
+
+		tbl := table.New("ID", "Name", "Description", "Output parser", "Executable type", "Executable path", "Arguments")
+		tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+
+		for _, command := range *commands {
+			tbl.AddRow(command.ID, command.Name, command.Description)
+
+		}
+		tbl.Print()
+	}
+
+	return err
+}
+
+func RunCommandAction(ctx context.Context, c *cli.Command) error {
+	projectId := c.Int("projectId")
+	commandUsageId := c.Int("cuid")
+
+	config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
+	usage, err := api.GetCommandUsageById(config.ReconmapApiConfig.BaseUri, commandUsageId)
+	if err != nil {
+		return fmt.Errorf("unable to retrieve command usage with id=%d (%w)", commandUsageId, err)
+	}
+	err = RunCommand(projectId, usage, c.StringSlice("var"))
+	if err != nil {
+		return err
+	}
+
+	err = UploadResults(projectId, usage)
+	return err
 }
 
 var CommandList []*cli.Command = []*cli.Command{
@@ -32,78 +105,31 @@ var CommandList []*cli.Command = []*cli.Command{
 		Usage:  "Initiates session with the server",
 		Flags:  []cli.Flag{},
 		Before: preActionChecks,
-		Action: func(c *cli.Context) error {
-			err := Login()
-			return err
-		},
+		Action: LoginAction,
 	},
 	{
 		Name:   "logout",
 		Usage:  "Terminates session with the server",
 		Flags:  []cli.Flag{},
 		Before: preActionChecks,
-		Action: func(c *cli.Context) error {
-			err := Logout()
-			return err
-		},
+		Action: LogoutAction,
 	},
 	{
-		Name:  "config",
-		Usage: "Creates a configuration file for Rmap",
-		Flags: []cli.Flag{},
-		Action: func(c *cli.Context) error {
-
-			config := configuration.NewConfig()
-			configurationFilePath, err := shareconfig.SaveConfig(config, configuration.ConfigFileName)
-			if err != nil {
-				return fmt.Errorf("error saving configuration: %w", err)
-			}
-			fmt.Printf("Configuration successfully saved to: %s\n", configurationFilePath)
-			fmt.Println("You can now use the 'rmap login' command to authenticate with the server.")
-			return nil
-		},
+		Name:   "config",
+		Usage:  "Creates a configuration file for Rmap",
+		Flags:  []cli.Flag{},
+		Action: ConfigAction,
 	},
 	{
 		Name:    "command",
 		Aliases: []string{"c"},
 		Usage:   "Search and run commands",
 		Before:  preActionChecks,
-		Subcommands: []*cli.Command{
+		Commands: []*cli.Command{
 			{
-				Name:  "search",
-				Usage: "Search commands by keywords",
-				Action: func(c *cli.Context) error {
-					if c.Args().Len() == 0 {
-						return errors.New("no keywords were entered after the search command")
-					}
-					var keywords string = strings.Join(c.Args().Slice(), " ")
-					config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
-					commands, err := api.GetCommandsByKeywords(config.ReconmapApiConfig.BaseUri, keywords)
-					if err != nil {
-						return err
-					}
-
-					var numCommands int = len(*commands)
-					fmt.Printf("%d commands matching '%s'\n", numCommands, keywords)
-
-					if numCommands > 0 {
-						fmt.Println()
-
-						headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
-						columnFmt := color.New(color.FgYellow).SprintfFunc()
-
-						tbl := table.New("ID", "Name", "Description", "Output parser", "Executable type", "Executable path", "Arguments")
-						tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
-
-						for _, command := range *commands {
-							tbl.AddRow(command.ID, command.Name, command.Description)
-
-						}
-						tbl.Print()
-					}
-
-					return err
-				},
+				Name:   "search",
+				Usage:  "Search commands by keywords",
+				Action: SearchCommandsAction,
 			},
 			{
 				Name:  "run",
@@ -113,23 +139,7 @@ var CommandList []*cli.Command = []*cli.Command{
 					&cli.IntFlag{Name: "commandUsageId", Aliases: []string{"cuid"}, Required: true},
 					&cli.StringSliceFlag{Name: "var", Required: false},
 				},
-				Action: func(c *cli.Context) error {
-					projectId := c.Int("projectId")
-					commandUsageId := c.Int("cuid")
-
-					config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
-					usage, err := api.GetCommandUsageById(config.ReconmapApiConfig.BaseUri, commandUsageId)
-					if err != nil {
-						return fmt.Errorf("unable to retrieve command usage with id=%d (%w)", commandUsageId, err)
-					}
-					err = RunCommand(projectId, usage, c.StringSlice("var"))
-					if err != nil {
-						return err
-					}
-
-					err = UploadResults(projectId, usage)
-					return err
-				},
+				Action: RunCommandAction,
 			},
 		},
 	},

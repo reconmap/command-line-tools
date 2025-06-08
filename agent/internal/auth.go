@@ -67,7 +67,7 @@ func GetPublicKeys() string {
 	// this goes to host:port/realms/name
 	issuerResponse, err := client.GetIssuer(context.Background(), realm)
 	if err != nil {
-		logger.Error("error retrieving issue", err)
+		logger.Error("error retrieving issuer", err)
 	}
 
 	return *issuerResponse.PublicKey

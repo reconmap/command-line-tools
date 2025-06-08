@@ -40,10 +40,7 @@ func Login() error {
 		return err
 	}
 
-	clientId := "web-client"
-	if config.KeycloakConfig.ClientID != "" {
-		clientId = config.KeycloakConfig.ClientID
-	}
+	clientId := config.KeycloakConfig.ClientID
 	oauthConfig := oauth2.Config{
 		ClientID:    clientId,
 		RedirectURL: "urn:ietf:wg:oauth:2.0:oob",
@@ -70,7 +67,8 @@ func Login() error {
 		panic(err)
 	}
 
-	token, err := oauthConfig.Exchange(oauth2.NoContext, code)
+	ctx := context.Background()
+	token, err := oauthConfig.Exchange(ctx, code)
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +81,7 @@ func Login() error {
 	}
 
 	verifier := provider.Verifier(&oidc.Config{ClientID: oauthConfig.ClientID})
-	idToken, err := verifier.Verify(oauth2.NoContext, rawIDToken)
+	idToken, err := verifier.Verify(ctx, rawIDToken)
 	if err != nil {
 		panic(err)
 	}

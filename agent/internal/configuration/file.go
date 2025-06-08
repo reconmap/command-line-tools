@@ -24,12 +24,12 @@ type Config struct {
 	ValidOrigins      string `json:"validOrigins"`
 }
 
-const ConfigFileName string = "config-rmap.json"
+const ConfigFileName string = "config-reconmapd.json"
 
 func NewConfig() Config {
 	return Config{
 		KeycloakConfig: KeycloakConfig{
-			BaseUri:      "http://localhost:8080/realms/reconmap",
+			BaseUri:      "http://localhost:8080",
 			ClientID:     "admin-cli",
 			ClientSecret: "REPLACE THIS WITH YOUR CLIENT SECRET",
 		},

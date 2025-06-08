@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"reconmap/agent/internal/configuration"
 
 	"github.com/Nerzal/gocloak/v13"
+	sharedconfig "github.com/reconmap/shared-lib/pkg/configuration"
 	"go.uber.org/zap"
 
 	"github.com/golang-jwt/jwt"
@@ -17,7 +19,8 @@ import (
 const realm = "reconmap"
 
 func NewGocloakClient() *gocloak.GoCloak {
-	keycloakHostname, _ := os.LookupEnv("RMAP_KEYCLOAK_HOSTNAME")
+	config, _ := sharedconfig.ReadConfig[configuration.Config]("config-reconmapd.json")
+	keycloakHostname := config.KeycloakConfig.BaseUri
 	keycloakDebug, _ := os.LookupEnv("RMAP_KEYCLOAK_DEBUG")
 	keycloakSkipVerify, _ := os.LookupEnv("RMAP_KEYCLOAK_SKIP_TLS_VERIFY")
 
@@ -31,8 +34,10 @@ func NewGocloakClient() *gocloak.GoCloak {
 }
 
 func GetAccessToken(app *App) (string, error) {
-	clientID, _ := os.LookupEnv("RMAP_AGENT_CLIENT_ID")
-	clientSecret, _ := os.LookupEnv("RMAP_AGENT_CLIENT_SECRET")
+	config, _ := sharedconfig.ReadConfig[configuration.Config]("config-reconmapd.json")
+
+	clientID := config.KeycloakConfig.ClientID
+	clientSecret := config.KeycloakConfig.ClientSecret
 
 	client := NewGocloakClient()
 
@@ -62,7 +67,7 @@ func GetPublicKeys() string {
 	// this goes to host:port/realms/name
 	issuerResponse, err := client.GetIssuer(context.Background(), realm)
 	if err != nil {
-		logger.Error("error retrieving issue", err)
+		logger.Error("error retrieving issuer", err)
 	}
 
 	return *issuerResponse.PublicKey

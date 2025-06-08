@@ -3,19 +3,23 @@ package internal
 import (
 	"context"
 	"fmt"
-	"os"
+	"reconmap/agent/internal/configuration"
 
 	"github.com/go-redis/redis/v8"
+	sharedconfig "github.com/reconmap/shared-lib/pkg/configuration"
 )
 
 func (app *App) connectRedis() *error {
-	redisHost := os.Getenv("REDIS_HOST")
-	redisPort := os.Getenv("REDIS_PORT")
+	config, _ := sharedconfig.ReadConfig[configuration.Config]("config-reconmapd.json")
+
+	redisHost := config.RedisConfig.Host
+	redisPort := config.RedisConfig.Port
 	ctx := context.Background()
 
 	redisConn := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
-		Password: os.Getenv("REDIS_PASSWORD"),
+		Addr:     fmt.Sprintf("%s:%d", redisHost, redisPort),
+		Username: config.RedisConfig.Username, // no username set
+		Password: config.RedisConfig.Password, // no password set
 		DB:       0,
 	})
 

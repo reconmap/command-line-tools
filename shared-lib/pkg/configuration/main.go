@@ -9,17 +9,19 @@ import (
 )
 
 func GetReconmapConfigDirectory() (string, error) {
-	home, err := os.UserHomeDir()
+	var configDir, err = os.UserConfigDir()
 	if err != nil {
 		return "", err
 	}
 
-	return filepath.Join(home, ".reconmap"), nil
-
+	return filepath.Join(configDir, "reconmap"), nil
 }
 
 func SaveConfig[T any](config T, fileName string) (string, error) {
 	var reconmapConfigDir, err = GetReconmapConfigDirectory()
+	if err != nil {
+		return "", err
+	}
 
 	if _, err := os.Stat(reconmapConfigDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(reconmapConfigDir, 0750); err != nil {
@@ -40,6 +42,7 @@ func ReadConfig[T any](fileName string) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	path := filepath.Join(reconmapConfigDir, fileName)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {

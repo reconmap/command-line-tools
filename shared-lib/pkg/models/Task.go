@@ -13,6 +13,7 @@ type Task struct {
 	Summary string `json:"summary"`
 	Description string `json:"description"`
 	Status string `json:"status"`
+	DurationEstimate int `json:"duration_estimate"`
 	DueDate string `json:"due_date"`
 	CommandId int `json:"command_id"`
 	Command string `json:"command"`

@@ -52,8 +52,8 @@ func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error 
 	}
 	outStr, errStr := string(stdout), string(stderr)
 
-	outputFilename := filepath.Clean(strconv.Itoa(usage.ID) + ".out")
-	f, err := os.Create(outputFilename)
+	stdoutFilename := filepath.Clean(strconv.Itoa(usage.ID) + ".out")
+	f, err := os.Create(stdoutFilename)
 
 	defer func() {
 		if err := f.Close(); err != nil {
@@ -65,8 +65,8 @@ func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error 
 		logger.Error(err)
 	}
 
-	if usage.OutputFilename == "STDOUT" {
-		usage.OutputFilename = outputFilename
+	if usage.OutputCapturingMode == "stdout" {
+		usage.OutputFilename = stdoutFilename
 	}
 	logger.Infof("command output written to '%s'", usage.OutputFilename)
 

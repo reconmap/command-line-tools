@@ -43,16 +43,20 @@ func NewApp() App {
 }
 
 // Run starts the agent.
-func (app *App) Run() *error {
+func (app *App) Run() error {
 	app.Logger.Info("Reconmap agent starting...")
+
+	config, err := sharedconfig.ReadConfig[configuration.Config]("config-reconmapd.json")
+	if err != nil {
+		app.Logger.Error("unable to read reconmapd config", zap.Error(err))
+		return err
+	}
 
 	accessToken, err := GetAccessToken(app)
 	if err != nil {
 		app.Logger.Error("unable to login to keycloak", zap.Error(err))
 		panic(err)
 	}
-
-	config, err := sharedconfig.ReadConfig[configuration.Config]("config-reconmapd.json")
 
 	restApiUrl := config.ReconmapApiConfig.BaseUri
 	schedules, err := api.GetCommandsSchedules(restApiUrl, accessToken)
@@ -112,7 +116,7 @@ func (app *App) Run() *error {
 	redisErr := app.connectRedis()
 	if redisErr != nil {
 		errorFormatted := fmt.Errorf("unable to connect to redis (%w)", *redisErr)
-		return &errorFormatted
+		return errorFormatted
 	}
 
 	go broadcastNotifications(app)

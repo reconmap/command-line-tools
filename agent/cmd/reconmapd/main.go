@@ -20,28 +20,29 @@ func ConfigAction(ctx context.Context, c *cli.Command) error {
 		return fmt.Errorf("error saving configuration: %w", err)
 	}
 	fmt.Printf("Configuration successfully saved to: %s\n", configurationFilePath)
-	fmt.Println("You can now use the 'rmap login' command to authenticate with the server.")
+	fmt.Println("You can now use the 'reconmapd run' command to start the server.")
 	return nil
 }
 
 func RunAction(ctx context.Context, c *cli.Command) error {
-	server := internal.NewApp()
-	if err := server.Run(); err != nil {
-		server.Logger.Error(*err)
+	app := internal.NewApp()
+	if err := app.Run(); err != nil {
+		app.Logger.Error(err)
+		return err
 	}
 	return nil
 }
 
 func main() {
-	app := cli.Command{
+	mainCommand := cli.Command{
 		Name:    "reconmapd",
 		Usage:   "Reconmap's agent",
 		Version: "1.0.0",
 	}
-	app.Copyright = "Apache License v2.0"
-	app.Usage = "Reconmap's agent"
-	app.Description = "Reconmap's agent for running scheduled commands"
-	app.Commands = []*cli.Command{
+	mainCommand.Copyright = "Apache License v2.0"
+	mainCommand.Usage = "Reconmap's agent"
+	mainCommand.Description = "Reconmap's agent for running scheduled commands"
+	mainCommand.Commands = []*cli.Command{
 		{
 			Name:   "config",
 			Usage:  "Creates a configuration file for Reconmapd",
@@ -56,7 +57,7 @@ func main() {
 		},
 	}
 
-	err := app.Run(context.Background(), os.Args)
+	err := mainCommand.Run(context.Background(), os.Args)
 	if err != nil {
 		panic(err)
 	}

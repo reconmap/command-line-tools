@@ -37,7 +37,6 @@ func LogoutAction(ctx context.Context, c *cli.Command) error {
 }
 
 func ConfigAction(ctx context.Context, c *cli.Command) error {
-
 	config := configuration.NewConfig()
 	configurationFilePath, err := shareconfig.SaveConfig(config, configuration.ConfigFileName)
 	if err != nil {

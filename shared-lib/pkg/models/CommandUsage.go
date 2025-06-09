@@ -10,6 +10,7 @@ type CommandUsage struct {
 	Description string `json:"description"`
 	ExecutablePath string `json:"executable_path"`
 	Arguments string `json:"arguments"`
+	OutputCapturingMode string `json:"output_capturing_mode"`
 	OutputFilename string `json:"output_filename"`
 	OutputParser string `json:"output_parser"`
 }

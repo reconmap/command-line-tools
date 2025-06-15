@@ -54,8 +54,7 @@ func (app *App) Run() error {
 
 	accessToken, err := GetAccessToken(app)
 	if err != nil {
-		app.Logger.Error("unable to login to keycloak", zap.Error(err))
-		panic(err)
+		return fmt.Errorf("unable to login to keycloak (%w)", err)
 	}
 
 	restApiUrl := config.ReconmapApiConfig.BaseUri

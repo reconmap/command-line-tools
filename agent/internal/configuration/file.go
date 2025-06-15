@@ -1,5 +1,7 @@
 package configuration
 
+import "os"
+
 type KeycloakConfig struct {
 	BaseUri      string `json:"baseUri"`
 	ClientID     string `json:"clientId"`
@@ -22,11 +24,14 @@ type Config struct {
 	ReconmapApiConfig `json:"reconmapApi"`
 	RedisConfig       `json:"redis"`
 	ValidOrigins      string `json:"validOrigins"`
+	AgentDirectory    string `json:"agentDirectory"`
 }
 
 const ConfigFileName string = "config-reconmapd.json"
 
 func NewConfig() Config {
+	homeDir, _ := os.UserHomeDir()
+
 	return Config{
 		KeycloakConfig: KeycloakConfig{
 			BaseUri:      "http://localhost:8080",
@@ -41,6 +46,7 @@ func NewConfig() Config {
 			Port:     6379,
 			Password: "REconDIS",
 		},
-		ValidOrigins: "http://localhost:5500",
+		ValidOrigins:   "http://localhost:5500",
+		AgentDirectory: homeDir,
 	}
 }

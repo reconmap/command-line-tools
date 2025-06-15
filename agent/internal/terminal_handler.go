@@ -2,15 +2,19 @@ package internal
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
+	"reconmap/agent/internal/configuration"
 	"syscall"
 	"unsafe"
 
 	"github.com/creack/pty"
 	"github.com/gorilla/websocket"
+	sharedconfig "github.com/reconmap/shared-lib/pkg/configuration"
 	"go.uber.org/zap"
 )
 
@@ -45,6 +49,8 @@ func tryWriteBinaryMessage(conn *websocket.Conn, data []byte) {
 }
 
 func handleWebsocket(w http.ResponseWriter, r *http.Request) {
+	config, _ := sharedconfig.ReadConfig[configuration.Config]("config-reconmapd.json")
+
 	err := CheckRequestToken(r)
 	if err != nil {
 		logger.Error(err)
@@ -62,9 +68,10 @@ func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
 	cmd := exec.Command("/bin/bash", "-l")
+	cmd.Dir = config.AgentDirectory
 	cmd.Env = append(os.Environ(),
-		"PS1=# ",
-		"TERM=xterm",
+		"LANG=en_GB.UTF-8",
+		"TERM=xterm-256colors",
 		"RMAP_SESSION_TOKEN="+params.Get("token"))
 
 	ttyFile, err := pty.Start(cmd)
@@ -89,49 +96,60 @@ func handleWebsocket(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	go sendTtyBuffer(ttyFile, conn)
+	go sendTtyBuffer(l, ttyFile, conn)
 
 	for {
-		receiveWsBuffer(l, conn, ttyFile)
+		err := receiveWsBuffer(l, conn, ttyFile)
+		if err != nil {
+			l.Error("unable to read from conn (%w)", err)
+			break
+		}
 	}
 }
 
-func sendTtyBuffer(ttyFile *os.File, conn *websocket.Conn) {
+func sendTtyBuffer(l *zap.SugaredLogger, ttyFile *os.File, conn *websocket.Conn) {
 	for {
 		buf := make([]byte, bufferSizeBytes)
 		read, err := ttyFile.Read(buf)
 		if err != nil {
-			tryWriteTextMessage(conn, err.Error())
+			l.Errorf("unable to read from tty (%w)", err)
 			return
 		}
 		tryWriteBinaryMessage(conn, buf[:read])
 	}
 }
 
-func receiveWsBuffer(l *zap.SugaredLogger, conn *websocket.Conn, ttyFile *os.File) {
+func receiveWsBuffer(l *zap.SugaredLogger, conn *websocket.Conn, ttyFile *os.File) error {
 	messageType, reader, err := conn.NextReader()
 	if err != nil {
-		l.Error("Unable to grab next reader", zap.Error(err))
-		return
+		if websocket.IsCloseError(err,
+			websocket.CloseNormalClosure,   // Normal.
+			websocket.CloseAbnormalClosure, // OpenSSH killed proxy client.
+		) {
+			return fmt.Errorf("received closed error", err)
+		}
+
+		return fmt.Errorf("Unable to grab next reader", err)
+	}
+
+	if messageType == websocket.CloseMessage {
+		return errors.New("close message received")
 	}
 
 	if messageType == websocket.TextMessage {
-		l.Warn("Unexpected text message")
 		tryWriteTextMessage(conn, "Unexpected text message")
-		return
+		return errors.New("unexpected text message")
 	}
 
 	dataTypeBuf := make([]byte, 1)
 	read, err := reader.Read(dataTypeBuf)
 	if err != nil {
-		l.Error("Unable to read message type from reader", zap.Error(err))
 		tryWriteTextMessage(conn, "Unable to read message type from reader")
-		return
+		return fmt.Errorf("unable to read message type from reader (%w)", err)
 	}
 
 	if read != 1 {
-		l.Error("Unexpected number of bytes read", zap.Int("bytesRead", read))
-		return
+		return fmt.Errorf("unexpected number of bytes read (%d)", read)
 	}
 
 	switch dataTypeBuf[0] {
@@ -144,12 +162,14 @@ func receiveWsBuffer(l *zap.SugaredLogger, conn *websocket.Conn, ttyFile *os.Fil
 		winSize, err := tryDecodeWindowSize(reader)
 		if err != nil {
 			tryWriteTextMessage(conn, "Error decoding resize message: "+err.Error())
-			return
+			return err
 		}
 		resizeTerminal(l, winSize, ttyFile)
 	default:
 		l.Error("Unknown data type", zap.Uint8("dataType", dataTypeBuf[0]))
 	}
+
+	return nil
 }
 
 func tryDecodeWindowSize(reader io.Reader) (windowSize, error) {

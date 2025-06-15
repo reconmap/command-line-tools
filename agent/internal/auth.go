@@ -11,7 +11,6 @@ import (
 
 	"github.com/Nerzal/gocloak/v13"
 	sharedconfig "github.com/reconmap/shared-lib/pkg/configuration"
-	"go.uber.org/zap"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -49,13 +48,11 @@ func GetAccessToken(app *App) (string, error) {
 
 	tokenInfo, err := client.RetrospectToken(ctx, token.AccessToken, clientID, clientSecret, realm)
 	if err != nil {
-		app.Logger.Error("unable to inspect token", zap.Error(err))
-		panic(err)
+		return "", fmt.Errorf("unable to retrospect token (%w)", err)
 	}
 
 	if !*tokenInfo.Active {
-		app.Logger.Error("token is not active")
-		panic("token is not active")
+		return "", errors.New("token is not active")
 	}
 
 	return token.AccessToken, nil

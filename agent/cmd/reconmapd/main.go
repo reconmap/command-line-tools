@@ -8,7 +8,6 @@ import (
 	"reconmap/agent/internal/configuration"
 
 	shareconfig "github.com/reconmap/shared-lib/pkg/configuration"
-
 	"github.com/urfave/cli/v3"
 )
 

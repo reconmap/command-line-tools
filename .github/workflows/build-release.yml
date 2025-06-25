@@ -86,7 +86,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: .
+        working-directory: ${{ github.workspace }}
 
     steps:
       - name: Login to container registry

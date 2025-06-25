@@ -126,10 +126,10 @@ func receiveWsBuffer(l *zap.SugaredLogger, conn *websocket.Conn, ttyFile *os.Fil
 			websocket.CloseNormalClosure,   // Normal.
 			websocket.CloseAbnormalClosure, // OpenSSH killed proxy client.
 		) {
-			return fmt.Errorf("received closed error", err)
+			return fmt.Errorf("received closed error (%w)", err)
 		}
 
-		return fmt.Errorf("Unable to grab next reader", err)
+		return fmt.Errorf("Unable to grab next reader (%w)", err)
 	}
 
 	if messageType == websocket.CloseMessage {

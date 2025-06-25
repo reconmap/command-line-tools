@@ -99,5 +99,5 @@ jobs:
 
       - name: Build and push docker image
         run: |
-          docker build -t reconmap/reconmapd:latest -f agent/Dockerfile .
-          docker push reconmap/reconmapd:latest
+          docker build -t ghcr.io/reconmap/agent:latest -f agent/Dockerfile .
+          docker push ghcr.io/reconmap/agent:latest

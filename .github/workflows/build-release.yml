@@ -89,9 +89,15 @@ jobs:
         working-directory: ${{ github.workspace }}
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Login to container registry
         run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u "${{ secrets.CR_USERNAME }}" --password-stdin
-      - name: Push docker image
+
+      - name: Build and push docker image
         run: |
           docker build -t reconmap/reconmapd:latest -f agent/Dockerfile .
           docker push reconmap/reconmapd:latest

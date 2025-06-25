@@ -1,5 +1,5 @@
 *.log
 *.out
 .idea
-sbom.spdx.json
+*-sbom.spdx.json
 tags

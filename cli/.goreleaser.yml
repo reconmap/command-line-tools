@@ -34,11 +34,11 @@ builds:
 
 release:
   extra_files:
-    - glob: sbom.spdx.json
+    - glob: rmap-sbom.spdx.json
 
-brews:
+homebrew_casks:
   - name: rmap
-    homepage: 'https://github.com/reconmap/cli'
+    homepage: 'https://github.com/reconmap/command-line-tools/tree/main/cli'
     description: 'Rmap: Command line interface for the Reconmap pentest automation and reporting tool.'
     directory: Formula
     license: "GPL-3.0"
@@ -48,8 +48,13 @@ brews:
     repository:
       owner: reconmap
       name: homebrew-tap
-    install: |
-      bin.install "rmap"
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/rmap"]
+          end
+
 
 archives:
   - name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"

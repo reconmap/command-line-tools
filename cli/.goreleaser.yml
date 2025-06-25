@@ -55,13 +55,13 @@ archives:
   - name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
     format_overrides:
     - goos: windows
-      format: zip
+      formats: [ 'zip' ]
 
 checksum:
   name_template: "checksums.txt"
 
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 
 changelog:
   sort: asc

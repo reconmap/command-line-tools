@@ -35,7 +35,7 @@ release:
   extra_files:
     - glob: sbom.spdx.json
 
-brews:
+homebrew_casks:
   - name: reconmapd
     homepage: "https://github.com/reconmap/agent"
     description: "Reconmapd: The Reconmap agent allows clients to launch commands remotely, open interactive browser terminals, and receive push notifications."
@@ -47,17 +47,22 @@ brews:
     repository:
       owner: reconmap
       name: homebrew-tap
-    install: |
-      bin.install "reconmapd"
+    hooks:
+      post:
+        # replace foo with the actual binary name
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/reconmapd"]
+          end
 
 archives:
   - name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
 
 checksum:
-  name_template: "checksums.txt"
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 
 changelog:
   sort: asc

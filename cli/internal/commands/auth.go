@@ -104,10 +104,10 @@ func Login() error {
 		}
 
 		if response.StatusCode == http.StatusMethodNotAllowed {
-			return errors.New(fmt.Sprintf("Method POST not allowed for %s. Please make sure you are pointing to the API url and not the frontend one.", apiUrl))
+			return fmt.Errorf("Method POST not allowed for %s. Please make sure you are pointing to the API url and not the frontend one.", apiUrl)
 		}
 
-		return errors.New(fmt.Sprintf("Server returned code %d", response.StatusCode))
+		return fmt.Errorf("Server returned code %d", response.StatusCode)
 	}
 
 	defer response.Body.Close()
@@ -123,10 +123,8 @@ func Login() error {
 		return err
 	}
 
-	if err == nil {
-		terminal.PrintGreenTick()
-		fmt.Printf(" Successfully logged in as '%s'\n", idTokenClaim.Email)
-	}
+	terminal.PrintGreenTick()
+	fmt.Printf(" Successfully logged in as '%s'\n", idTokenClaim.Email)
 
 	return err
 }

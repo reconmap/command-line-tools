@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
@@ -9,6 +10,57 @@ import (
 
 	"github.com/reconmap/shared-lib/pkg/models"
 )
+
+func AgentBoot(apiBaseUri string, accessToken string, systemInfo *SystemInfo) (*models.CommandSchedules, error) {
+	var apiUrl string = apiBaseUri + "/agents/boot"
+	marshalled, err := json.Marshal(systemInfo)
+
+	client2 := &http.Client{}
+	req, err := http.NewRequest("POST", apiUrl, bytes.NewBuffer(marshalled))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+
+	response, err := client2.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	_, err = io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func AgentPing(apiBaseUri string, accessToken string) (*models.CommandSchedules, error) {
+	var apiUrl string = apiBaseUri + "/agents/ping"
+
+	client2 := &http.Client{}
+	req, err := http.NewRequest("GET", apiUrl, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+
+	response, err := client2.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	_, err = io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
 
 func GetCommandsSchedules(apiBaseUri string, accessToken string) (*models.CommandSchedules, error) {
 	var apiUrl string = apiBaseUri + "/commands/schedules"

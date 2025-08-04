@@ -6,9 +6,12 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"reconmap/agent/internal/build"
 	"reconmap/agent/internal/configuration"
+	"runtime"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -17,6 +20,8 @@ import (
 	sharedio "github.com/reconmap/shared-lib/pkg/io"
 	"github.com/reconmap/shared-lib/pkg/logging"
 	"github.com/robfig/cron"
+	"github.com/shirou/gopsutil/v4/cpu"
+	"github.com/shirou/gopsutil/v4/mem"
 	"go.uber.org/zap"
 )
 
@@ -35,6 +40,7 @@ func NewApp() App {
 	muxRouter := mux.NewRouter()
 	muxRouter.HandleFunc("/term", handleWebsocket)
 	muxRouter.HandleFunc("/notifications", handleNotifications)
+	muxRouter.HandleFunc("/systeminfo", handleSystemInfo)
 
 	return App{
 		muxRouter: muxRouter,
@@ -117,6 +123,46 @@ func (app *App) Run() error {
 		errorFormatted := fmt.Errorf("unable to connect to redis (%w)", *redisErr)
 		return errorFormatted
 	}
+
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
+
+	go func() {
+
+		hostname, err := os.Hostname()
+		if err != nil {
+			hostname = "unknown"
+		}
+		cpuInfo, err := cpu.Counts(true)
+		cpuStr := "unknown"
+
+		if err == nil {
+			cpuStr = fmt.Sprintf("%d cores", cpuInfo)
+		}
+
+		vmStat, err := mem.VirtualMemory()
+		memStr := "unknown"
+		if err == nil {
+			memStr = fmt.Sprintf("%.2fGB", float64(vmStat.Total)/(1024*1024*1024))
+		}
+
+		systemInfo := api.SystemInfo{
+			Version:  build.BuildVersion,
+			Hostname: hostname,
+			Arch:     runtime.GOARCH,
+			Os:       runtime.GOOS,
+			CPU:      cpuStr,
+			Memory:   memStr,
+		}
+
+		api.AgentBoot(restApiUrl, accessToken, &systemInfo)
+	}()
+	go func() {
+		for range ticker.C {
+			app.Logger.Info("pinging reconmap API")
+			api.AgentPing(restApiUrl, accessToken)
+		}
+	}()
 
 	go broadcastNotifications(app)
 

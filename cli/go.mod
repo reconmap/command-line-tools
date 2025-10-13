@@ -14,7 +14,7 @@ require (
 	github.com/coreos/go-oidc v2.3.0+incompatible
 	github.com/reconmap/shared-lib v0.0.0-20220910165932-7d018d9111fc
 	github.com/urfave/cli/v3 v3.3.3
-	golang.org/x/oauth2 v0.30.0
+	golang.org/x/oauth2 v0.32.0
 )
 
 require (

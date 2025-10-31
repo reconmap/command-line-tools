@@ -23,7 +23,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v5
         with:
-          go-version: 1.24.1
+          go-version: 1.25.3
 
       - name: Generate sbom
         run: |
@@ -60,7 +60,7 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v5
         with:
-          go-version: 1.24.1
+          go-version: 1.25.3
 
       - name: Generate sbom
         run: |

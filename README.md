@@ -12,4 +12,4 @@ docker push ghcr.io/reconmap/agent:latest
 ## Build requirements
 
 - Make
-- Golang +1.24.1
+- Golang +1.25

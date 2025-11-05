@@ -22,16 +22,16 @@ const (
 	bufferSizeBytes = 1024
 )
 
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  bufferSizeBytes,
+	WriteBufferSize: bufferSizeBytes,
+}
+
 type windowSize struct {
 	Rows uint16 `json:"rows"`
 	Cols uint16 `json:"cols"`
 	X    uint16
 	Y    uint16
-}
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  bufferSizeBytes,
-	WriteBufferSize: bufferSizeBytes,
 }
 
 func tryWriteMessage(conn *websocket.Conn, messageType int, data []byte) {

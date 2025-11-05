@@ -39,8 +39,6 @@ var logger = logging.GetLoggerInstance()
 func NewApp() App {
 	muxRouter := mux.NewRouter()
 	muxRouter.HandleFunc("/term", handleWebsocket)
-	muxRouter.HandleFunc("/notifications", handleNotifications)
-	muxRouter.HandleFunc("/systeminfo", handleSystemInfo)
 
 	return App{
 		muxRouter: muxRouter,

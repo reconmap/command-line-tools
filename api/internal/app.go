@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
 	"reconmap/api/internal/configuration"
@@ -46,9 +45,6 @@ func (app *App) Run() error {
 	}
 
 	app.Logger.Info("creating cron jobs")
-
-	listen := flag.String("listen", ":5520", "Host:port to listen on")
-	flag.Parse()
 
 	redisErr := app.connectRedis()
 	if redisErr != nil {

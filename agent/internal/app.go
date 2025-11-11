@@ -1,8 +1,6 @@
 package internal
 
 import (
-	"flag"
-	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
@@ -12,6 +10,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"fmt"
+	"log"
+	"net"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/mux"
@@ -46,8 +48,20 @@ func NewApp() App {
 	}
 }
 
+func GetLocalIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddress := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddress.IP
+}
+
 // Run starts the agent.
-func (app *App) Run() error {
+func (app *App) Run(listenAddress string) error {
 	app.Logger.Info("Reconmap agent starting...")
 
 	config, err := sharedconfig.ReadConfig[configuration.Config]("config-reconmapd.json")
@@ -113,9 +127,6 @@ func (app *App) Run() error {
 	}
 	c.Start()
 
-	listen := flag.String("listen", ":5520", "Host:port to listen on")
-	flag.Parse()
-
 	redisErr := app.connectRedis()
 	if redisErr != nil {
 		errorFormatted := fmt.Errorf("unable to connect to redis (%w)", *redisErr)
@@ -145,12 +156,14 @@ func (app *App) Run() error {
 		}
 
 		systemInfo := api.SystemInfo{
-			Version:  build.BuildVersion,
-			Hostname: hostname,
-			Arch:     runtime.GOARCH,
-			Os:       runtime.GOOS,
-			CPU:      cpuStr,
-			Memory:   memStr,
+			Version:       build.BuildVersion,
+			Hostname:      hostname,
+			Arch:          runtime.GOARCH,
+			Os:            runtime.GOOS,
+			CPU:           cpuStr,
+			Memory:        memStr,
+			IpAddress:     GetLocalIP().String(),
+			ListenAddress: listenAddress,
 		}
 
 		api.AgentBoot(restApiUrl, accessToken, &systemInfo)
@@ -164,7 +177,7 @@ func (app *App) Run() error {
 
 	go broadcastNotifications(app)
 
-	if err := http.ListenAndServe(*listen, app.muxRouter); err != nil {
+	if err := http.ListenAndServe(listenAddress, app.muxRouter); err != nil {
 		app.Logger.Fatal("Something went wrong with the webserver", zap.Error(err))
 	}
 

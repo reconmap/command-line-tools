@@ -22,7 +22,7 @@ WORKDIR /app
 
 COPY --from=builder /build/reconmapd /app/reconmapd
 
-EXPOSE 5520
+EXPOSE 10000
 
 CMD ["/app/reconmapd"]
 

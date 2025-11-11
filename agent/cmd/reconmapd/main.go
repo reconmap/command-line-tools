@@ -24,8 +24,9 @@ func ConfigAction(ctx context.Context, c *cli.Command) error {
 }
 
 func RunAction(ctx context.Context, c *cli.Command) error {
+	var listenAddress = c.String("listen")
 	app := internal.NewApp()
-	if err := app.Run(); err != nil {
+	if err := app.Run(listenAddress); err != nil {
 		app.Logger.Error(err)
 		return err
 	}
@@ -49,9 +50,15 @@ func main() {
 			Action: ConfigAction,
 		},
 		{
-			Name:   "run",
-			Usage:  "Starts the Reconmapd server",
-			Flags:  []cli.Flag{},
+			Name:  "run",
+			Usage: "Starts the Reconmapd server",
+			Flags: []cli.Flag{
+				&cli.StringFlag{
+					Name:  "listen",
+					Value: ":10000",
+					Usage: "address and port to listen",
+				},
+			},
 			Action: RunAction,
 		},
 	}

@@ -165,13 +165,19 @@ func (app *App) Run(listenAddress string) error {
 			IpAddress:     GetLocalIP().String(),
 			ListenAddress: listenAddress,
 		}
-
-		api.AgentBoot(restApiUrl, accessToken, &systemInfo)
+		app.Logger.Info("sending boot event to API")
+		_, err = api.AgentBoot(restApiUrl, accessToken, &systemInfo)
+		if err != nil {
+			app.Logger.Error("unable to send boot notification", zap.Error(err))
+		}
 	}()
 	go func() {
 		for range ticker.C {
-			app.Logger.Info("pinging reconmap API")
-			api.AgentPing(restApiUrl, accessToken)
+			app.Logger.Info("sending ping event to API")
+			_, err = api.AgentPing(restApiUrl, accessToken)
+			if err != nil {
+				app.Logger.Error("unable to send ping notification", zap.Error(err))
+			}
 		}
 	}()
 

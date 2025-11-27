@@ -12,15 +12,16 @@ import (
 )
 
 func AgentBoot(apiBaseUri string, accessToken string, systemInfo *SystemInfo) (*models.CommandSchedules, error) {
-	var apiUrl string = apiBaseUri + "/agents/boot"
+	var apiUrl string = apiBaseUri + "/agents/1/boot"
 	marshalled, err := json.Marshal(systemInfo)
 
 	client2 := &http.Client{}
-	req, err := http.NewRequest("POST", apiUrl, bytes.NewBuffer(marshalled))
+	req, err := http.NewRequest("PATCH", apiUrl, bytes.NewBuffer(marshalled))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+accessToken)
+	req.Header.Add("Content-Type", "application/json")
 
 	response, err := client2.Do(req)
 	if err != nil {
@@ -38,10 +39,10 @@ func AgentBoot(apiBaseUri string, accessToken string, systemInfo *SystemInfo) (*
 }
 
 func AgentPing(apiBaseUri string, accessToken string) (*models.CommandSchedules, error) {
-	var apiUrl string = apiBaseUri + "/agents/ping"
+	var apiUrl string = apiBaseUri + "/agents/1/ping"
 
 	client2 := &http.Client{}
-	req, err := http.NewRequest("GET", apiUrl, nil)
+	req, err := http.NewRequest("PATCH", apiUrl, nil)
 	if err != nil {
 		return nil, err
 	}

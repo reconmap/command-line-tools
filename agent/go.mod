@@ -12,7 +12,7 @@ require (
 	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil/v4 v4.25.9
 	github.com/urfave/cli/v3 v3.5.0
-	go.uber.org/zap v1.27.0
+	go.uber.org/zap v1.27.1
 )
 
 require (

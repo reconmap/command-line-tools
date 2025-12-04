@@ -1,16 +1,14 @@
-
 package models
 
 type CommandUsage struct {
-
-	ID int `json:"id"`
-	CommandId int `json:"command_id"`
-	CreatorUid int `json:"creator_uid"`
-	Name string `json:"name"`
-	Description string `json:"description"`
-	ExecutablePath string `json:"executable_path"`
-	Arguments string `json:"arguments"`
-	OutputCapturingMode string `json:"output_capturing_mode"`
-	OutputFilename string `json:"output_filename"`
-	OutputParser string `json:"output_parser"`
+	ID                  int    `json:"id"`
+	CommandId           int    `json:"commandId"`
+	CreatorUid          int    `json:"createdByUid"`
+	Name                string `json:"name"`
+	Description         string `json:"description"`
+	ExecutablePath      string `json:"executablePath"`
+	Arguments           string `json:"arguments"`
+	OutputCapturingMode string `json:"outputCapturingMode"`
+	OutputFilename      string `json:"outputFilename"`
+	OutputParser        string `json:"outputParser"`
 }

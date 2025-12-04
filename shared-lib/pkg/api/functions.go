@@ -95,7 +95,7 @@ func GetCommandsSchedules(apiBaseUri string, accessToken string) (*models.Comman
 }
 
 func GetCommandUsageById(apiBaseUri string, id int) (*models.CommandUsage, error) {
-	var apiUrl string = apiBaseUri + "/commands/usage/" + strconv.Itoa(id)
+	var apiUrl string = apiBaseUri + "/commands/0/usages/" + strconv.Itoa(id)
 
 	client := &http.Client{}
 	req, err := NewRmapRequest("GET", apiUrl, nil)

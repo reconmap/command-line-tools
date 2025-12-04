@@ -83,7 +83,7 @@ func Login() error {
 		panic(err)
 	}
 
-	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/users/login"
+	var apiUrl string = config.ReconmapApiConfig.BaseUri + "/sessions"
 
 	formData := map[string]string{}
 	jsonData, err := json.Marshal(formData)

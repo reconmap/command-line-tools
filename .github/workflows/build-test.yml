@@ -16,7 +16,7 @@ jobs:
         working-directory: cli
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v5
@@ -41,7 +41,7 @@ jobs:
         working-directory: agent
     steps:
       - name: Check out code into the Go module directory
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Go 1.x
         uses: actions/setup-go@v5

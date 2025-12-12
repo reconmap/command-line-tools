@@ -54,6 +54,10 @@ func RunCommand(projectId int, usage *models.CommandUsage, vars []string) error 
 
 	stdoutFilename := filepath.Clean(strconv.Itoa(usage.ID) + ".out")
 	f, err := os.Create(stdoutFilename)
+	if err != nil {
+		logger.Error(err)
+		return err
+	}
 
 	defer func() {
 		if err := f.Close(); err != nil {

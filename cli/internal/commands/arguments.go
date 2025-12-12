@@ -16,14 +16,14 @@ import (
 
 func preActionChecks(ctx context.Context, c *cli.Command) (context.Context, error) {
 	if !shareconfig.HasConfig(configuration.ConfigFileName) {
-		return nil, errors.New("Rmap has not been configured. Please call the 'rmap config' command first.")
+		return nil, errors.New("rmap has not been configured. Please call the 'rmap config' command first")
 	}
 	config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
 	if err != nil {
 		return nil, fmt.Errorf("error reading configuration: %w", err)
 	}
 	ctx = context.WithValue(ctx, "config", config)
-	return nil, nil
+	return ctx, nil
 }
 
 func LoginAction(ctx context.Context, c *cli.Command) error {
@@ -53,6 +53,9 @@ func SearchCommandsAction(ctx context.Context, c *cli.Command) error {
 	}
 	var keywords string = strings.Join(c.Args().Slice(), " ")
 	config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
+	if err != nil {
+		return err
+	}
 	commands, err := api.GetCommandsByKeywords(config.ReconmapApiConfig.BaseUri, keywords)
 	if err != nil {
 		return err
@@ -85,6 +88,10 @@ func RunCommandAction(ctx context.Context, c *cli.Command) error {
 	commandUsageId := c.Int("cuid")
 
 	config, err := shareconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
+	if err != nil {
+		return err
+	}
+
 	usage, err := api.GetCommandUsageById(config.ReconmapApiConfig.BaseUri, commandUsageId)
 	if err != nil {
 		return fmt.Errorf("unable to retrieve command usage with id=%d (%w)", commandUsageId, err)

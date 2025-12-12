@@ -66,6 +66,9 @@ func Login() error {
 	}
 
 	err = api.SaveSessionToken(token.AccessToken)
+	if err != nil {
+		return err
+	}
 
 	rawIDToken, ok := token.Extra("id_token").(string)
 	if !ok {
@@ -87,9 +90,16 @@ func Login() error {
 
 	formData := map[string]string{}
 	jsonData, err := json.Marshal(formData)
+	if err != nil {
+		return err
+	}
 
 	httpClient := &http.Client{}
 	req, err := api.NewRmapRequest("POST", apiUrl, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
 	req.Header.Add("Content-Type", "application/json")
 	api.AddBearerToken(req)
 	response, err := httpClient.Do(req)
@@ -100,21 +110,21 @@ func Login() error {
 	if response.StatusCode != http.StatusOK {
 
 		if response.StatusCode == http.StatusForbidden || response.StatusCode == http.StatusUnauthorized {
-			return errors.New("Invalid credentials")
+			return errors.New("invalid credentials")
 		}
 
 		if response.StatusCode == http.StatusMethodNotAllowed {
-			return fmt.Errorf("Method POST not allowed for %s. Please make sure you are pointing to the API url and not the frontend one.", apiUrl)
+			return fmt.Errorf("method POST not allowed for %s. Please make sure you are pointing to the API url and not the frontend one", apiUrl)
 		}
 
-		return fmt.Errorf("Server returned code %d", response.StatusCode)
+		return fmt.Errorf("server returned code %d", response.StatusCode)
 	}
 
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 
 	if err != nil {
-		return errors.New("Unable to read response from server")
+		return errors.New("unable to read response from server")
 	}
 
 	var loginResponse api.LoginResponse
@@ -131,7 +141,7 @@ func Login() error {
 
 func Logout() error {
 	if _, err := api.ReadSessionToken(); err != nil {
-		return errors.New("There is no active user session")
+		return errors.New("there is no active user session")
 	}
 
 	config, err := sharedconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
@@ -156,7 +166,7 @@ func Logout() error {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return errors.New("Response error received from the server")
+		return errors.New("response error received from the server")
 	}
 
 	defer response.Body.Close()

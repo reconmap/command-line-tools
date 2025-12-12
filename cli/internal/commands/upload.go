@@ -21,7 +21,7 @@ import (
 
 func UploadResults(projectId int, usage *models.CommandUsage) error {
 	if len(strings.TrimSpace(usage.OutputFilename)) == 0 {
-		return errors.New("The command has not defined an output filename. Nothing has been uploaded to the server.")
+		return errors.New("the command has not defined an output filename. Nothing has been uploaded to the server")
 	}
 
 	config, err := sharedconfig.ReadConfig[configuration.Config](configuration.ConfigFileName)
@@ -38,7 +38,7 @@ func UploadResults(projectId int, usage *models.CommandUsage) error {
 func Upload(client *http.Client, url string, outputFileName string, usageId int, projectId int) (err error) {
 
 	if _, err := os.Stat(outputFileName); os.IsNotExist(err) {
-		return fmt.Errorf("Output file '%s' could not be found", outputFileName)
+		return fmt.Errorf("output file '%s' could not be found", outputFileName)
 	}
 
 	file, err := os.Open(filepath.Clean(outputFileName))

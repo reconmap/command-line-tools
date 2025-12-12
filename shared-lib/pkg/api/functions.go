@@ -102,7 +102,7 @@ func GetCommandUsageById(apiBaseUri string, id int) (*models.CommandUsage, error
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", "application/json")
 	if err = AddBearerToken(req); err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func GetCommandsByKeywords(apiBaseUri string, keywords string) (*models.Commands
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", "application/json")
 	if err = AddBearerToken(req); err != nil {
 		return nil, err
 	}

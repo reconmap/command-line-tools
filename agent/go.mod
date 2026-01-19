@@ -11,7 +11,7 @@ require (
 	github.com/reconmap/shared-lib v0.0.0-20220910165932-7d018d9111fc
 	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil/v4 v4.25.9
-	github.com/urfave/cli/v3 v3.5.0
+	github.com/urfave/cli/v3 v3.6.2
 	go.uber.org/zap v1.27.0
 )
 
